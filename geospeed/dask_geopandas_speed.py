@@ -1,4 +1,5 @@
 """Test the speed of overlay with dask."""
+
 import time
 import warnings
 from pathlib import Path
@@ -7,18 +8,27 @@ import dask_geopandas as dpd
 import geopandas as gpd
 import pandas as pd
 
+
 # Function to apply the overlay in each partition using GeoPandas
-def overlay_partitions(part1, part2):
-    return gpd.overlay(part1, part2, how='intersection')
+def overlay_partitions(part1: gpd.GeoDataFrame, part2: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Use helper function to calculate overlay with dask."""
+    return gpd.overlay(part1, part2, how="intersection")
+
 
 warnings.filterwarnings("ignore")
 
 start = time.time()
 
-buildings_path = [x for directory in Path("../ALKIS").iterdir() for x in directory.iterdir() if x.name == "GebauedeBauwerk.shp"]
-parcels_path = [x for directory in Path("../ALKIS").iterdir() for x in directory.iterdir() if x.name == "NutzungFlurstueck.shp"]
+buildings_path = [
+    x for directory in Path("../ALKIS").iterdir() for x in directory.iterdir() if x.name == "GebauedeBauwerk.shp"
+]
+parcels_path = [
+    x for directory in Path("../ALKIS").iterdir() for x in directory.iterdir() if x.name == "NutzungFlurstueck.shp"
+]
 
-buildings_gdf = gpd.GeoDataFrame(pd.concat([gpd.read_file(x, engine="pyogrio", use_arrow=True) for x in buildings_path]))
+buildings_gdf = gpd.GeoDataFrame(
+    pd.concat([gpd.read_file(x, engine="pyogrio", use_arrow=True) for x in buildings_path])
+)
 parcels_gdf = gpd.GeoDataFrame(pd.concat([gpd.read_file(x, engine="pyogrio", use_arrow=True) for x in parcels_path]))
 parcels_ddf = dpd.from_geopandas(parcels_gdf, npartitions=14)
 
