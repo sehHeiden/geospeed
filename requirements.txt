@@ -1,0 +1,7 @@
+geopandas==1.0.1
+pyogrio==0.9.0
+pyarrow
+dask-geopandas
+duckdb==1.1.0
+
+ruff
