@@ -39,9 +39,7 @@ con.sql("""
     UPDATE buildings
     SET geom = ST_MakeValid(geom)
     WHERE NOT ST_IsValid(geom);
-""")
 
-con.sql("""
     UPDATE parcels
     SET geom = ST_MakeValid(geom)
     WHERE NOT ST_IsValid(geom);
@@ -61,13 +59,31 @@ con.sql("""
     FROM buildings, parcels
     WHERE ST_Intersects(buildings.geom, parcels.geom);
     """)
+
+con.sql("""
+    DROP INDEX buildings_idx;
+    DROP INDEX parcels_idx;
+
+    ALTER TABLE buildings
+    DROP COLUMN geom;
+    ALTER TABLE parcels
+    DROP COLUMN geom;
+    """)
+
+con.sql("""
+    CREATE TABLE intersections AS
+    SELECT *
+    FROM buildings_intersection AS bi, buildings AS bs, parcels AS ps
+    WHERE bi.building_oid = bs.oid AND bi.parcel_oid = ps.oid;
+    """)
+
 print(f"DuckDB: Intersection takes: {(time.time() - time_intersection):.2f} s.")
 
 
 time_writing = time.time()
 con.sql("""
     COPY(SELECT * EXCLUDE geom, ST_AsWKB(geom) AS geometry
-         FROM buildings_intersection
+         FROM intersections
          WHERE ST_IsValid(geom) AND NOT ST_IsEmpty(geom))
     TO 'buildings_with_parcels.fgb' WITH(FORMAT GDAL, DRIVER 'FlatGeobuf')""")
 
