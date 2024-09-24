@@ -23,12 +23,8 @@ building_cols = [
 ]
 parcels_cols = ["oid", "aktualit", "nutzart", "bez", "flstkennz", "geometry"]
 
-buildings_path = [
-    x for directory in Path("../ALKIS").iterdir() for x in directory.iterdir() if x.name == "GebauedeBauwerk.shp"
-]
-parcels_path = [
-    x for directory in Path("../ALKIS").iterdir() for x in directory.iterdir() if x.name == "NutzungFlurstueck.shp"
-]
+buildings_path = list(Path("../ALKIS").glob("./*/GebauedeBauwerk.shp"))
+parcels_path = list(Path("../ALKIS").glob("./*/NutzungFlurstueck.shp"))
 
 buildings_gdf = gpd.GeoDataFrame(
     pd.concat([gpd.read_file(x, columns=building_cols, engine="pyogrio", use_arrow=True) for x in buildings_path])
