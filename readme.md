@@ -6,14 +6,15 @@ Also in Pythonland Geopandas enhanced performance over time. In addition, I also
 Please contact me, when you read this and think I could have increased the code quality and speed.
 I use some public data, which still widely use shape files in Germany.
 
-## The Data used
+## The Data
 
 First I load fhe ALKIS (register) building data for all counties in the state of Brandenburg.
 All vector files are open data. The victor files are still offered as Shapefiles.
 From the ALKIS Dataset of Brandenburg I used the buildings and the parcels (with land usage).
 The files are stored per county!
-The geometries have some errors which Geopandas auto-detects and fixes. 
-I assume, that makes loading the data so slow.
+The geometries have some errors which Geopandas auto-detects and fixes.
+In addition, some file can not be opened with the [fiona](https://fiona.readthedocs.io/en/latest/index.html) library from Geopandas, with the error message
+of multiple  geometry columns. Hence, we always use de new default: pyogrio.
 
 ## Task
 
@@ -41,9 +42,9 @@ Sometimes with some extra code, some extra libs as pyogrio.
 
 *Expectations*: Well, nothing special. It just works. Should load the data faster with [pyogrio](https://pyogrio.readthedocs.io/en/latest/).
 
-*Observations*: Initially, loading the datasets takes about 87 s on my machine with am AMD Ryzen 5800X CPU.
-Duration between different runs does vary slightly. But it is not really getting faster with pyogrio. 
-I checked, it was not even installed before. So perhaps it defaults back to [fiona](https://fiona.readthedocs.io/en/latest/index.html)?
+*Observations*: Initially, loading the datasets takes about 75 to 80 s on my machine with am AMD Ryzen 5800X CPU.
+Duration between different runs does vary slightly. It's somewhat faster when using arrow by about 15 s.
+
 The Intersection takes about 190s. The python program takes about 10 GB of main memory, while running.
 
 In the end I also tried to load and build the intersection per county and then just concat the results.
@@ -51,12 +52,12 @@ It's not faster, due to the spatial indexing.? RAM usage is initially much lower
 
 With the reduced number of columns the durations are:
 
-| Task           | Duration  pure Geopandas \s | Duration Geopandas & pyogrio \s | Duration Geopandas & pyogrio, per county \s |
-|:---------------|----------------------------:|--------------------------------:|--------------------------------------------:|
-| Loading Shape  |                       74.23 |                           58.67 |                                             |
-| Intersection   |                      195.37 |                          182.98 |                                             |
-| Saving Parquet |                       12.46 |                           11.48 |                                       12.38 |
-| Overall        |                      282.06 |                          253.13 |                                      263.61 |
+| Task           | Duration Geopandas \s | Duration Geopandas & arrow \s | Duration Geopandas & pyogrio, per county \s |
+|:---------------|----------------------:|------------------------------:|--------------------------------------------:|
+| Loading Shape  |                 77.55 |                         60.38 |                                             |
+| Intersection   |                189.20 |                        185.83 |                                             |
+| Saving Parquet |                 12.60 |                         11.40 |                                       12.38 |
+| Overall        |                279.34 |                        257.61 |                                      263.61 |
 
 ### [Dask-Geopandas](https://dask-geopandas.readthedocs.io/en/stable/)
 
