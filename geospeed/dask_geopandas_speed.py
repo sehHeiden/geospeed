@@ -19,24 +19,27 @@ warnings.filterwarnings("ignore")
 
 start = time.time()
 
-buildings_path = list(Path("../ALKIS").glob("./*/GebauedeBauwerk.shp"))
-parcels_path = list(Path("../ALKIS").glob("./*/NutzungFlurstueck.shp"))
+buildings_path = list(Path("./ALKIS").glob("./*/GebauedeBauwerk.shp"))
+parcels_path = list(Path("./ALKIS").glob("./*/NutzungFlurstueck.shp"))
 
 buildings_gdf = gpd.GeoDataFrame(
     pd.concat([gpd.read_file(x, engine="pyogrio", use_arrow=True) for x in buildings_path])
 )
+buildings_gdf = buildings_gdf.drop_duplicates(subset="oid", keep="first")
+
 parcels_gdf = gpd.GeoDataFrame(pd.concat([gpd.read_file(x, engine="pyogrio", use_arrow=True) for x in parcels_path]))
+parcels_gdf = parcels_gdf.drop_duplicates(subset="oid", keep="first")
 parcels_ddf = dpd.from_geopandas(parcels_gdf, npartitions=14)
 
-print(f"Dask: Loading data duration: {(time.time() - start):.2f} s.")
+print(f"Dask: Loading data duration: {(time.time() - start):.0f} s.")
 
 start_intersection = time.time()
 # Use Dask's map_partitions to apply the overlay function
 buildings_with_parcels = parcels_ddf.map_partitions(overlay_partitions, buildings_gdf).compute()
-print(f"Dask: Intersection takes: {(time.time() - start_intersection):.2f} s.")
+print(f"Dask: Intersection takes: {(time.time() - start_intersection):.0f} s.")
 
 start_saving = time.time()
 buildings_with_parcels.to_parquet("buildings_with_parcels.geoparquet")
-print(f"Dask: Saving takes: {(time.time() - start_saving):.2f} s.")
+print(f"Dask: Saving takes: {(time.time() - start_saving):.0f} s.")
 
-print(f"Dask: Total duration: {(time.time() - start):.2f} s.")
+print(f"Dask: Total duration: {(time.time() - start):.0f} s.")

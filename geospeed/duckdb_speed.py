@@ -5,51 +5,60 @@ from pathlib import Path
 
 import duckdb
 
-con = duckdb.connect()
+save_name = "geo_speed.duckdb"
+con = duckdb.connect("geo_speed.duckdb", config={"threads": 15, "memory_limit": "20GB"})
 con.install_extension("spatial")
 con.load_extension("spatial")
 
-print(
-    f"Formats writable AND readable: {con.sql("SELECT short_name FROM ST_Drivers() WHERE can_create AND can_open;").fetchall()}"
-)
+con.sql("DROP TABLE IF EXISTS buildings")
+con.sql("DROP TABLE IF EXISTS parcels")
+con.sql("DROP TABLE IF EXISTS buildings_intersection")
+con.sql("DROP VIEW IF EXISTS intersections")
+
+# Check supported formats for writing
+formats = con.sql("SELECT short_name FROM ST_Drivers() WHERE can_create;").fetchall()
+print(f"Writable formats: {formats}")
 start = time.time()
 
-shapefile_dir = Path("../ALKIS")  # Base directory
-building_files = shapefile_dir.glob("*/GebauedeBauwerk.shp")  # Glob pattern for the subdirectories
-parcel_files = shapefile_dir.glob("*/NutzungFlurstueck.shp")  # Glob pattern for the subdirectories
+shapefile_dir = Path("./ALKIS")  # Base directory
+building_files = list(shapefile_dir.glob("*/GebauedeBauwerk.shp"))  # Glob pattern for the subdirectories
+parcel_files = list(shapefile_dir.glob("*/NutzungFlurstueck.shp"))  # Glob pattern for the subdirectories
 
-# Check if table already exists, if not create it
-table_created = False
+# Error handling if no files are found
+if not building_files or not parcel_files:
+    load_error_txt = "No shapefiles found in the provided directory."
+    raise FileNotFoundError(load_error_txt)
+
+# Create then insert
+con.sql(f"CREATE TABLE buildings AS SELECT * FROM ST_Read('{building_files[0].resolve()!s}');")
+con.sql(f"CREATE TABLE parcels AS SELECT * FROM ST_Read('{parcel_files[0].resolve()!s}');")
+con.execute(
+    "PREPARE insert_buildings_stmt AS INSERT INTO buildings SELECT * FROM ST_Read($1) WHERE oid NOT IN (SELECT oid FROM parcels);"
+)
+con.execute(
+    "PREPARE insert_parcels_stmt AS INSERT INTO parcels SELECT * FROM ST_Read($1) WHERE oid NOT IN(SELECT oid FROM parcels);"
+)
+
 
 # Iterate over the found shapefiles and load them into DuckDB
-for building_file, parcel_file in zip(building_files, parcel_files, strict=True):
-    if not table_created:
-        # Create the table with the first shapefile
-        con.sql(f"CREATE TABLE buildings AS SELECT * FROM ST_Read('{building_file.resolve()!s}');")
-        con.sql(f"CREATE TABLE parcels AS SELECT * FROM ST_Read('{parcel_file.resolve()!s}');")
-
-        table_created = True
-    else:
-        # Insert into the existing table for subsequent shapefiles
-        con.sql(f"INSERT INTO buildings SELECT * FROM ST_Read('{building_file.resolve()!s}');")
-        con.sql(f"INSERT INTO parcels SELECT * FROM ST_Read('{parcel_file.resolve()!s}');")
-
+for building_file, parcel_file in zip(building_files[1:], parcel_files[1:], strict=True):
+    # Insert into the existing table for subsequent shapefiles
+    con.execute(f"EXECUTE insert_buildings_stmt('{building_file.resolve()!s}')")
+    con.execute(f"EXECUTE insert_parcels_stmt('{parcel_file.resolve()!s}')")
 # Make the data valid
+# Make geometries valid
 con.sql("""
-    UPDATE buildings
-    SET geom = ST_MakeValid(geom)
-    WHERE NOT ST_IsValid(geom);
-
-    UPDATE parcels
-    SET geom = ST_MakeValid(geom)
-    WHERE NOT ST_IsValid(geom);
+    UPDATE buildings SET geom = ST_MakeValid(geom) WHERE NOT ST_IsValid(geom);
+    UPDATE parcels SET geom = ST_MakeValid(geom) WHERE NOT ST_IsValid(geom);
 """)
+
 
 # create indexes
 con.sql("CREATE INDEX buildings_idx ON buildings USING RTREE (geom);")
 con.sql("CREATE INDEX parcels_idx ON parcels USING RTREE (geom);")
-print(f"DuckDB: Loading data takes: {(time.time() - start):.2f} s.")
+print(f"DuckDB: Loading data takes: {(time.time() - start):.0f} s.")
 
+# Perform intersection
 time_intersection = time.time()
 con.sql("""
     CREATE TABLE buildings_intersection AS
@@ -60,34 +69,33 @@ con.sql("""
     WHERE ST_Intersects(buildings.geom, parcels.geom);
     """)
 
+# Drop the indexes and unnecessary columns
 con.sql("""
     DROP INDEX buildings_idx;
     DROP INDEX parcels_idx;
+    ALTER TABLE buildings DROP COLUMN geom;
+    ALTER TABLE parcels DROP COLUMN geom;
+""")
 
-    ALTER TABLE buildings
-    DROP COLUMN geom;
-    ALTER TABLE parcels
-    DROP COLUMN geom;
-    """)
-
+# Create final intersections table
 con.sql("""
-    CREATE TABLE intersections AS
+    CREATE VIEW intersections AS
     SELECT *
-    FROM buildings_intersection AS bi, buildings AS bs, parcels AS ps
-    WHERE bi.building_oid = bs.oid AND bi.parcel_oid = ps.oid;
+    FROM buildings_intersection AS bi
+    JOIN buildings AS bs ON bi.building_oid = bs.oid
+    JOIN parcels AS ps ON bi.parcel_oid = ps.oid;
     """)
+con.sql("""UPDATE buildings_intersection SET geom = ST_MakeValid(geom) WHERE NOT ST_IsValid(geom);""")
+print(f"DuckDB: Intersection takes: {(time.time() - time_intersection):.0f} s.")
 
-print(f"DuckDB: Intersection takes: {(time.time() - time_intersection):.2f} s.")
+if not save_name:
+    # Save the result to a file
+    time_writing = time.time()
+    con.sql("""
+        COPY(SELECT * EXCLUDE geom, ST_AsWKB(geom) AS geometry
+             FROM intersections
+             WHERE ST_IsValid(geom) AND NOT ST_IsEmpty(geom))
+        TO 'buildings_with_parcels.fgb' WITH(FORMAT GDAL, DRIVER 'FlatGeobuf', SRS 'EPSG:25833')""")
+    print(f"DuckDB: Saving takes: {(time.time() - time_writing):.0f} s.")
 
-
-time_writing = time.time()
-con.sql("""
-    COPY(SELECT * EXCLUDE geom, ST_AsWKB(geom) AS geometry
-         FROM intersections
-         WHERE ST_IsValid(geom) AND NOT ST_IsEmpty(geom))
-    TO 'buildings_with_parcels.fgb' WITH(FORMAT GDAL, DRIVER 'FlatGeobuf')""")
-
-
-print(f"DuckDB: Saving takes: {(time.time() - time_writing):.2f} s.")
-
-print(f"Dask: Total duration: {(time.time() - start):.2f} s.")
+print(f"DuckDB: Total duration: {(time.time() - start):.0f} s.")
