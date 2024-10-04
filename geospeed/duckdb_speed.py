@@ -33,10 +33,16 @@ if not building_files or not parcel_files:
 con.sql(f"CREATE TABLE buildings AS SELECT * FROM ST_Read('{building_files[0].resolve()!s}');")
 con.sql(f"CREATE TABLE parcels AS SELECT * FROM ST_Read('{parcel_files[0].resolve()!s}');")
 con.execute(
-    "PREPARE insert_buildings_stmt AS INSERT INTO buildings SELECT * FROM ST_Read($1) WHERE oid NOT IN (SELECT oid FROM parcels);"
+    """PREPARE insert_buildings_stmt AS
+       INSERT INTO buildings SELECT *
+       FROM ST_Read($1)
+       WHERE oid NOT IN (SELECT oid FROM parcels);"""
 )
 con.execute(
-    "PREPARE insert_parcels_stmt AS INSERT INTO parcels SELECT * FROM ST_Read($1) WHERE oid NOT IN(SELECT oid FROM parcels);"
+    """PREPARE insert_parcels_stmt AS
+       INSERT INTO parcels SELECT *
+       FROM ST_Read($1)
+       WHERE oid NOT IN(SELECT oid FROM parcels);"""
 )
 
 
