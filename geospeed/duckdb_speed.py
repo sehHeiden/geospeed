@@ -5,8 +5,8 @@ from pathlib import Path
 
 import duckdb
 
-save_name = "geo_speed.duckdb"
-con = duckdb.connect("geo_speed.duckdb", config={"threads": 15, "memory_limit": "20GB"})
+save_name = None
+con = duckdb.connect(save_name if save_name else ":memory:", config={"threads": 15, "memory_limit": "20GB"})
 con.install_extension("spatial")
 con.load_extension("spatial")
 
