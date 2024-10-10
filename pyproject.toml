@@ -3,9 +3,10 @@
 exclude = [
     ".eggs",
     ".git",
-    ".venv"
+    ".venv",
+    ".ipynb_checkpoints"
 ]
-include = ["*.py"]
+include = ["*.py", "*.ipynb"]
 
 line-length = 120
 indent-width = 4
