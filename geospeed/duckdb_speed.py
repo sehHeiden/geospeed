@@ -30,8 +30,8 @@ if not building_files or not parcel_files:
     raise FileNotFoundError(load_error_txt)
 
 # Create then insert
-con.sql(f"CREATE TABLE buildings AS SELECT * FROM ST_Read('{building_files[0].resolve()!s}');")
-con.sql(f"CREATE TABLE parcels AS SELECT * FROM ST_Read('{parcel_files[0].resolve()!s}');")
+con.sql(f"CREATE TABLE buildings AS SELECT * FROM ST_Read('{building_files[0].resolve()!s}');")  # noqa: S608
+con.sql(f"CREATE TABLE parcels AS SELECT * FROM ST_Read('{parcel_files[0].resolve()!s}');")  # noqa: S608
 con.execute(
     """PREPARE insert_buildings_stmt AS
        INSERT INTO buildings SELECT *
