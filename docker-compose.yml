@@ -25,6 +25,8 @@ services:
       - SPARK_MASTER_URL=//${SPARK_MASTER_IP:-spark-master}:7077
     networks:
       - spark-network
+    depends_on:
+      - spark-master
 
 networks:
   spark-network:
