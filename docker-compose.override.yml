@@ -1,0 +1,5 @@
+services:
+  spark-master:
+    scale: 1
+  spark-worker:
+    scale: 1
