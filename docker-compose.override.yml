@@ -1,5 +1,4 @@
 services:
   spark-master:
-    scale: 0
-  spark-worker:
-    scale: 1
+    profiles:
+      - disabled
