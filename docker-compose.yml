@@ -6,7 +6,7 @@ services:
       - .:/app
     working_dir: /app
     environment:
-      - DRIVER_MEM=6g
+      - SPARK_DRIVER_MEMORY=6g
       - SPARK_MODE=master
     ports:
       - "8888:8888"
@@ -20,7 +20,7 @@ services:
     container_name: spark-worker
     hostname: spark-worker
     environment:
-      - EXECUTOR_MEM=12g
+      - SPARK_EXECUTOR_MEMORY=12g
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://${SPARK_MASTER_IP:-spark-master}:7077
     networks:
