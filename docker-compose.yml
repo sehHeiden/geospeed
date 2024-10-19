@@ -1,33 +1,14 @@
 services:
-  spark-master:
+  spark:
     image: apache/sedona:latest
-    container_name: spark-master
     volumes:
       - .:/app
     working_dir: /app
     environment:
-      - SPARK_DRIVER_MEMORY=6g
-      - SPARK_MODE=master
+      - DRIVER_MEM=6g
+      - EXECUTOR_MEM=12g
     ports:
       - "8888:8888"
       - "8080:8080"
-      - "7077:7077"
-    networks:
-      - spark-network
-
-  spark-worker:
-    image: apache/sedona:latest
-    container_name: spark-worker
-    hostname: spark-worker
-    environment:
-      - SPARK_EXECUTOR_MEMORY=12g
-      - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://${SPARK_MASTER_IP:-spark-master}:7077
-    networks:
-      - spark-network
-    depends_on:
-      - spark-master
-
-networks:
-  spark-network:
-    driver: bridge
+      - "8081:8081"
+      - "4040:4040"
