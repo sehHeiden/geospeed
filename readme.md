@@ -139,7 +139,9 @@ The comparison between DuckDB and Geopandas (with arrow) in speed is
 | Intersection   |          181 |                 96 |                  92 |
 | Saving         |           11 |                 93 |                 --- |
 | Overall        |          251 |                261 |                 212 |
-| Polygon Count  |      3620994 |            3619033 |             3619033 |
+| Polygon Count  |      3620994 |            3619033 |                 --- |
+
+DuckDB has a lower count in returned Polyons, but I assume that these are in included in the collections.
 
 ## [Apache Sedona](https://sedona.apache.org/latest/) with PySpark
 
