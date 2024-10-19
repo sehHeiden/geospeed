@@ -2,10 +2,10 @@
 title: Speed Comparison on some Modern GIS tools
 author: SeHe
 type: reference
-date: 2024-09-28
+date: 2024-10-19
 tags: ["Python", "GIS",  "GeoPandas", "Dask", "DuckDB"]
 categories: "GIS"
-draft: false
+draft: true
 comments: true
 ---
 
@@ -24,6 +24,8 @@ The files are stored per county!
 The geometries have some errors which Geopandas auto-detects and fixes.
 In addition, some file can not be opened with the [fiona](https://fiona.readthedocs.io/en/latest/index.html) library from Geopandas, with the error message
 of multiple  geometry columns. Hence, we always use de new default: pyogrio.
+
+![SansSouci park and palaces](/graphics/sanssouci_park.png)
 
 # Task
 
@@ -218,7 +220,7 @@ Also the top RAM usage is reduced to about 6.2 GB.
 
 # Conclusion
 
-| Package             | total duration \s | top RAM usage \ GB |
+| Package             | total duration \s |  top RAM usage \GB |
 |:--------------------|------------------:|-------------------:|
 | Geopandas           |      287.5 ±  1.5 |                    |
 | Geopandas (arrow)   |      264.6 ±  4.9 |                 14 |
