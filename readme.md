@@ -13,11 +13,11 @@ GIS can change with current technology such as Apache Arrow, and perhaps also wi
 In Pythonland, Geopandas has improved performance over time. I also wanted to try Dask, DuckDB and Apache Sedona.
 
 Please contact me if you read this and think I could have improved the code quality and speed.
-I use some public data, which is still widely used in Germany as shape files.
+I use some public data, which is still widely used in Germany, as shape files.
 
 # The data
 
-First I downloaded the ALKIS (register) building data for [all counties in the state of Brandenburg](https://data.geobasis-bb.de/geobasis/daten/alkis/Vektordaten/shape/).
+First, I downloaded the ALKIS (register) building data for [all counties in the state of Brandenburg](https://data.geobasis-bb.de/geobasis/daten/alkis/Vektordaten/shape/).
 All the vector files are open data. The vector files are still offered as shapefiles.
 From the ALKIS dataset of Brandenburg I used the buildings and the parcels (with land use).
 The files are stored per county!
@@ -31,7 +31,7 @@ of multiple geometry columns. So we always use the new default: pyogrio.
 
 1) Open the datasets and concatenate the counties.
 2) Create an intersection overlay
-3) Save the data, if possible as a geoparquet file.
+3) Save the data, if possible, as a geoparquet file.
 
 Why did I choose this task?
 I think the overlay is one of the more computationally intensive tasks in GIS. I may write articles about other tasks later.
@@ -70,7 +70,7 @@ Sometimes with some extra code, some extra libs like pyogrio.
 It's a bit faster when using arrow by about 15 seconds.
  It got a bit slower when dropping the duplicates (on the district borders) by there `oid`. 
 
-In the end I also tried to load and build the intersection per county and then just concat the results.
+In the end I also tried to load and build the intersection per county and then just concatenate the results.
 It's not faster because of the spatial indexing... The RAM usage is much lower at about 3 GB.
 
 With the reduced number of columns, the running times are:
@@ -90,7 +90,7 @@ We have saved 3,620,994 polygons.
 *Expectations:* Partitioning the DataFrame should increase the number of cores used. This should reduce the computation time.
 
 *Observations:* I open the shapefiles as before with Geopandas, but then convert them to a Dask-Geopandas GeoDataFrame.
-All this increases the loading time a bit from about 60s to 76s. It's not much because I don't do the spartial partioning!
+All this increases the loading time a bit from about 60s to 76s. It's not much because I don't do the spatial partioning!
 
 Finally, I try the map_partitions method. On the left a Dask GeoDataFrame (the larger parcels dataset) and on the right the smaller GeoDataFrame on the right. Having the larger dataset as the Dask-GeoDataFrame increases speed.
 No, spatial swapping is not necessary as the spatial index is already used.
@@ -111,9 +111,9 @@ But three times faster, for 8 cores and 16 threads on the machine. Not quite wha
 ## [DuckDB](https://duckdb.org/docs/extensions/spatial/overview)
 
 DuckDB has a spatial extension. Although the csv/parquet file readers work well, the
- tokens to load multiple files at once. 
+ tokens are to load multiple files at once. 
 But this is not possible with ST_Read for reading spatial data. So I use pathlib as with the other frameworks.
-Also geoparquet is not supported for writing. So I chose `FlatGeobuf` as the geopackage could not be saved.
+Also, geoparquet is not supported for writing. So I chose `FlatGeobuf` as the geopackage could not be saved.
 There is no overlay, I have to do all the steps myself. So there is a possibility that my solution is suboptimal.
 
 Writing the data also adds a coordinate system. However, the data can be opened with QGIS.
@@ -124,7 +124,7 @@ The resulting FlatGeoBuf is huge.
 *expectation*: Not much, it's marked as faster than SQLite for DataAnalysis. Which is true. 
 But how does it compare to DataFrames, which are also in RAM? Should be faster, 
 due to multicore usage. The memory layout benefits cannot be much, as GeoPandas also uses Apache Arrow? 
-*Observation: CPU usage is high at first, but drops steadily.
+*Observation: CPU usage is high at first but drops steadily.
 For Dask the usage fluctuates. I suspect this is due to index usage. The ST_Intersects operation uses the index, ST_Intersection does not.
 
 The execution speed is much slower than for Dask. Saving takes so long that it is even as slow as normal geopandas. 
@@ -141,7 +141,7 @@ The comparison between DuckDB and Geopandas (with arrow) in speed is
 | Overall        |          251 |                261 |                 212 |
 | Polygon Count  |      3620994 |            3619033 |                 --- |
 
-DuckDB has a lower count in returned Polyons, but I assume that these are in included in the collections.
+DuckDB has a lower count in returned Polygons, but I assume that these are in included in the collections.
 
 ## [Apache Sedona](https://sedona.apache.org/latest/) with PySpark
 
@@ -151,7 +151,7 @@ So PySpark would not be as fast as Dask?
 Although the code is conceptually very similar to the database version. It is an interesting technology.
 I started with the Sedona container as a docker-compose file. This created a local Spark instance with Sedona and Jupyter notebook.
 
-The shapefiles can be loaded with a placeholder. No iteration (in code) required.
+The shapefiles can be loaded with a placeholder. No iteration (in code) is required.
 But we need to validate the geometry with ST_MakeValid. Otherwise, I get a Java error message which is really long.
 Which makes it hard to understand, at least if you are not used to it.
 You can use SQL syntax on the DataFrames, or you can use message chaining methods.
@@ -161,7 +161,7 @@ This flexibility is a plus.
 
 So far the code is lazy. A show method only executes on the row it will show, counting on all rows.
 Lazy execution can lead to double execution, so I remove all count methods.
-The slowest part seems to be writing. But differentiating the timing is difficult due to the lazy execution.
+The slowest part seems to be writing. But differentiating the timing is challenging due to the lazy execution.
 The data is saved as a geoqarquet file with 3618339 polygons, the size was about 320 MB with snappy compression and 250 MB with ZSTD.
 Saving as a single parquet file takes about 158 seconds.
 I would have liked to use more containers on a single device and let them talk to each other to get multiple workers and a master to see how much multi-node
@@ -173,10 +173,10 @@ But that did not seem so trivial (please prove me wrong)
 
 For the overall speed and memory usage comparison, I exclude Apache-Sedona as it is running in a Docker container (for now).
 
-The previous timings were based on warmed runs, but single executions. Here we use 10 warmed runs to get a better picture.
+The previous timings were based on warmed runs but single executions. Here we use 10 warmed runs to get a better picture.
 We need the warming because we use the same input data, so a GeoPandas run would also warm up the Dask GeoPandas run, and so on.
 Without warming GeoPandas, this would be even slower.
-These execution times must always be slower than the previous ones, because they include loading the Python interpreter and all libraries. and all libraries.
+These execution times must always be slower than the previous ones because they include loading the Python interpreter and all libraries. and all libraries.
 
 Without using arrow for input data. GeoPandas took 287.519 s ± 1.532 s to open, overlay and save.
 The overall variation will be small.
@@ -225,17 +225,17 @@ The top RAM usage is also reduced to about 6.2 GB.
 
 
 The intersection itself has a speedup S of about three for Dask-GeoDataFrames and two for DuckDB compared to GeoPandas.
-This is despite using 8 cores with hyper-threading. 
+This is despite using eight cores with hyper-threading. 
 I suspect that DuckDB is slower here because intersection does not use the spatial index, but intersection does.
 When we are able to use multiple cores, loading the data becomes a relatively long part of the total execution time.
 Either a distribution in geoparquet or loading each file in a separate thread could help.
 
-For Apache-Sedona we can only compare the total execution time and this seems to be on par with Dask-GeoPandas.
+For Apache-Sedona we can only compare the total execution time, and this seems to be on par with Dask-GeoPandas.
 
-If low memory usage is important, DUCKDB is an option. So either on systems with low memory, or with huge amounts of data.
+If low memory usage is important, DUCKDB is an option. So either on systems with low memory or with huge amounts of data.
 To avoid using swap. Opening shapefiles with DuckDB is slower than with GeoPandas. 
 So far I cannot recommend using DuckDB for spatial tasks, as the number of supported file formats is limited, and although supported I was not able to save to GeoPackages.
 Also, DuckDB does not support raster files. 
 
-If you already have a Spark cluster, Sedona may be a valid option. So far Dask is the fastest solution, but uses a huge amount of additional memory.
+If you already have a Spark cluster, Sedona may be a valid option. So far Dask is the fastest solution but uses a huge amount of additional memory.
 Maybe one day I can recommend DuckDB instead.
