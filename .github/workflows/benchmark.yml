@@ -12,7 +12,19 @@ jobs:
       - uses: actions/checkout@v4
         with:
           lfs: true
+      
+      - name: Cache system packages
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt
+          key: ${{ runner.os }}-apt-${{ hashFiles('.github/workflows/benchmark.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-apt-
+      
       - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+      
       - run: sudo apt-get update -qq && sudo apt-get install -y gdal-bin libgdal-dev
       - run: uv sync && mkdir -p ALKIS_TEST/test_county
       - run: |
