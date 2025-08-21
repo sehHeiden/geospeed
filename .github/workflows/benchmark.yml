@@ -34,7 +34,11 @@ jobs:
           echo "Installed GDAL version: $(gdal-config --version)"
       
       - name: Set JAVA_HOME
-        run: echo "JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64" >> $GITHUB_ENV
+        run: |
+          echo "JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64" >> $GITHUB_ENV
+          export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+          echo "JAVA_HOME set to: $JAVA_HOME"
+          java -version
       - run: uv sync && mkdir -p ALKIS_TEST/test_county
       
       - name: Install geofileops for benchmarking

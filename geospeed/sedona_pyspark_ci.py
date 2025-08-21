@@ -19,8 +19,11 @@ except ImportError as e:
     print("This requires PySpark and Apache Sedona to be installed.")
     sys.exit(1)
 
-# Set JAVA_HOME if not set (common issue in CI)
-if not os.environ.get("JAVA_HOME"):
+# Ensure JAVA_HOME is set (common issue in CI)
+# Check if already set first
+if os.environ.get("JAVA_HOME"):
+    print(f"JAVA_HOME already set to: {os.environ['JAVA_HOME']}")
+else:
     # Try common Java locations
     java_paths = [
         "/usr/lib/jvm/java-11-openjdk-amd64",  # Ubuntu
@@ -31,10 +34,22 @@ if not os.environ.get("JAVA_HOME"):
     for java_path in java_paths:
         if Path(java_path).exists():
             os.environ["JAVA_HOME"] = java_path
+            print(f"Set JAVA_HOME to: {java_path}")
             break
     else:
-        print("JAVA_HOME not set and no Java installation found")
-        sys.exit(1)
+        # Try to find Java with which command
+        import subprocess
+        try:
+            java_cmd = subprocess.run(["which", "java"], capture_output=True, text=True, check=True)
+            java_bin = java_cmd.stdout.strip()
+            # Get the real path in case it's a symlink
+            java_real = subprocess.run(["readlink", "-f", java_bin], capture_output=True, text=True, check=True)
+            java_home = str(Path(java_real.stdout.strip()).parent.parent)
+            os.environ["JAVA_HOME"] = java_home
+            print(f"Found Java via which command, set JAVA_HOME to: {java_home}")
+        except subprocess.CalledProcessError:
+            print("JAVA_HOME not set and no Java installation found")
+            sys.exit(1)
 
 # Initialize SparkSession in local mode for CI
 spark = (
