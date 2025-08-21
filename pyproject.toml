@@ -19,7 +19,7 @@ dependencies = [
     "memory-profiler",
     "psutil",
     "duckdb~=1.1.0",
-    "pyspark==3.4.1",
+    "pyspark==3.5.6",
     "apache-sedona[spark]==1.6.1",
     # "geofileops>=0.8.0",  # Requires system GDAL, installed in CI
 ]
