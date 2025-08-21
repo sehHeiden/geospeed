@@ -16,7 +16,7 @@ import json
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-README_FILE = REPO_ROOT / "README.md"
+README_FILE = REPO_ROOT / "readme.md"
 RESULTS_FILE = REPO_ROOT / "benchmarks" / "latest.json"
 
 START_MARKER = "<!-- BENCHMARK_RESULTS_START -->"

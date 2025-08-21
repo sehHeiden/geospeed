@@ -33,10 +33,10 @@ jobs:
           else
             timeout 3600 uv run python scripts/benchmarks.py
             uv run python scripts/update_readme.py
-            git diff --quiet README.md || {
+            git diff --quiet readme.md || {
               git config user.email "action@github.com"
               git config user.name "GitHub Action"
-              git add README.md
+              git add readme.md
               git commit -m "Update benchmarks"
               git push
             }
