@@ -19,7 +19,7 @@ jobs:
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             uv run python -c "import geopandas, pyogrio, duckdb; print('✅ OK')"
           else
-            timeout 3600 uv run python -m scripts.run_benchmarks
+            timeout 3600 uv run python scripts/benchmarks.py
             uv run python scripts/update_readme.py
             git diff --quiet README.md || {
               git config user.email "action@github.com"
