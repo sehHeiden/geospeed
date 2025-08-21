@@ -35,8 +35,14 @@ parcels_cols = ["oid", "aktualit", "nutzart", "bez", "flstkennz", "geometry"]
 data_dir = get_data_dir()
 buildings_with_parcels = []
 for directory in data_dir.iterdir():
+    # Only process directories, skip files
+    if not directory.is_dir():
+        continue
     buildings_path = directory / "GebauedeBauwerk.shp"
     parcels_path = directory / "NutzungFlurstueck.shp"
+    # Skip if shapefile doesn't exist
+    if not buildings_path.exists() or not parcels_path.exists():
+        continue
     buildings_gdf = gpd.read_file(buildings_path, engine="pyogrio", use_arrow=True, columns=building_cols)
     parcels_gdf = gpd.read_file(parcels_path, engine="pyogrio", use_arrow=True, columns=parcels_cols)
 
