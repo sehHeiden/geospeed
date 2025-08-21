@@ -1,4 +1,7 @@
 /.venv/
 /ALKIS/
-/geospeed/buildings_with_parcels.geoparquet
+*.geoparquet
+*.parquet
 .env
+/.idea
+**/.ipynb_checkpoints
