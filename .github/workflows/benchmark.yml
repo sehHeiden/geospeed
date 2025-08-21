@@ -11,7 +11,7 @@ jobs:
       contents: write  # Allow pushing commits back to repo
     timeout-minutes: ${{ github.event_name == 'pull_request' && 10 || 60 }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           lfs: true
       
