@@ -5,7 +5,7 @@ pyarrow
 dask-geopandas
 matplotlib
 memory-profiler
-duckdb==1.1.0
+duckdb~=1.1.0
 pyspark==3.4.1
 apache-sedona[spark]==1.6.1
 

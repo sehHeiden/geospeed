@@ -8,7 +8,9 @@ import duckdb
 save_name = None
 con = duckdb.connect(save_name if save_name else ":memory:", config={"threads": 15, "memory_limit": "20GB"})
 con.install_extension("spatial")
+con.install_extension("parquet")
 con.load_extension("spatial")
+con.load_extension("parquet")
 
 con.sql("DROP TABLE IF EXISTS buildings")
 con.sql("DROP TABLE IF EXISTS parcels")
@@ -98,10 +100,8 @@ if not save_name:
     # Save the result to a file
     time_writing = time.time()
     con.sql("""
-        COPY(SELECT * EXCLUDE geom, ST_AsWKB(geom) AS geometry
-             FROM intersections
-             WHERE ST_IsValid(geom) AND NOT ST_IsEmpty(geom))
-        TO 'buildings_with_parcels.fgb' WITH(FORMAT GDAL, DRIVER 'FlatGeobuf', SRS 'EPSG:25833')""")
+        COPY intersections
+        TO 'buildings_with_parcels.geoparquet' (FORMAT PARQUET, CODEC 'ZSTD')""")
     print(f"DuckDB: Saving takes: {(time.time() - time_writing):.0f} s.")
 
 print(f"DuckDB: Total duration: {(time.time() - start):.0f} s.")
