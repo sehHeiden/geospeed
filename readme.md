@@ -1,7 +1,7 @@
 # GeoSpeed 🚀
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
-[![Benchmarks](https://github.com/sehe/geospeed/workflows/Benchmarks/badge.svg)](https://github.com/sehe/geospeed/actions/workflows/benchmark.yml)
+[![Benchmarks](https://github.com/sehHeiden/geospeed/workflows/Benchmarks/badge.svg)](https://github.com/sehHeiden/geospeed/actions/workflows/benchmark.yml)
 [![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
