@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: pip  # Works with uv via pyproject.toml
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      gis:
+        patterns: ["geopandas", "pyogrio", "fiona", "pyarrow"]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3

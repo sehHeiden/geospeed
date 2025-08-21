@@ -1,9 +1,10 @@
 """Test the execution speed for an equivalent of Geopandas Overlay with intersection using a spatial index."""
 
 import time
-from pathlib import Path
 
 import duckdb
+
+from .utils import get_file_paths
 
 save_name = None
 con = duckdb.connect(save_name if save_name else ":memory:", config={"threads": 15, "memory_limit": "20GB"})
@@ -22,14 +23,7 @@ formats = con.sql("SELECT short_name FROM ST_Drivers() WHERE can_create;").fetch
 print(f"Writable formats: {formats}")
 start = time.time()
 
-shapefile_dir = Path("./ALKIS")  # Base directory
-building_files = list(shapefile_dir.glob("*/GebauedeBauwerk.shp"))  # Glob pattern for the subdirectories
-parcel_files = list(shapefile_dir.glob("*/NutzungFlurstueck.shp"))  # Glob pattern for the subdirectories
-
-# Error handling if no files are found
-if not building_files or not parcel_files:
-    load_error_txt = "No shapefiles found in the provided directory."
-    raise FileNotFoundError(load_error_txt)
+building_files, parcel_files = get_file_paths()
 
 # Create then insert
 con.sql(f"CREATE TABLE buildings AS SELECT * FROM ST_Read('{building_files[0].resolve()!s}');")  # noqa: S608

@@ -2,11 +2,12 @@
 
 import time
 import warnings
-from pathlib import Path
 
 import dask_geopandas as dpd
 import geopandas as gpd
 import pandas as pd
+
+from .utils import get_file_paths
 
 
 # Function to apply the overlay in each partition using GeoPandas
@@ -18,16 +19,14 @@ def overlay_partitions(part1: gpd.GeoDataFrame, part2: gpd.GeoDataFrame) -> gpd.
 warnings.filterwarnings("ignore")
 
 start = time.time()
-
-buildings_path = list(Path("./ALKIS").glob("./*/GebauedeBauwerk.shp"))
-parcels_path = list(Path("./ALKIS").glob("./*/NutzungFlurstueck.shp"))
+buildings_paths, parcels_paths = get_file_paths()
 
 buildings_gdf = gpd.GeoDataFrame(
-    pd.concat([gpd.read_file(x, engine="pyogrio", use_arrow=True) for x in buildings_path])
+    pd.concat([gpd.read_file(x, engine="pyogrio", use_arrow=True) for x in buildings_paths])
 )
 buildings_gdf = buildings_gdf.drop_duplicates(subset="oid", keep="first")
 
-parcels_gdf = gpd.GeoDataFrame(pd.concat([gpd.read_file(x, engine="pyogrio", use_arrow=True) for x in parcels_path]))
+parcels_gdf = gpd.GeoDataFrame(pd.concat([gpd.read_file(x, engine="pyogrio", use_arrow=True) for x in parcels_paths]))
 parcels_gdf = parcels_gdf.drop_duplicates(subset="oid", keep="first")
 parcels_ddf = dpd.from_geopandas(parcels_gdf, npartitions=14)
 

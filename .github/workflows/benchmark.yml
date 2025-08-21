@@ -1,0 +1,31 @@
+name: Benchmarks
+on:
+  pull_request: { paths: ['pyproject.toml', 'uv.lock'] }
+  push: { branches: [main], paths: ['pyproject.toml', 'uv.lock', 'geospeed/**', 'scripts/**'] }
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ github.event_name == 'pull_request' && 10 || 60 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: astral-sh/setup-uv@v4
+      - run: sudo apt-get update -qq && sudo apt-get install -y gdal-bin libgdal-dev
+      - run: uv sync && mkdir -p ALKIS_TEST/test_county
+      - run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            uv run python -c "import geopandas, pyogrio, duckdb; print('✅ OK')"
+          else
+            timeout 3600 uv run python -m scripts.run_benchmarks
+            uv run python scripts/update_readme.py
+            git diff --quiet README.md || {
+              git config user.email "action@github.com"
+              git config user.name "GitHub Action"
+              git add README.md
+              git commit -m "Update benchmarks"
+              git push
+            }
+          fi

@@ -24,7 +24,7 @@ building_cols = [
 parcels_cols = ["oid", "aktualit", "nutzart", "bez", "flstkennz", "geometry"]
 
 buildings_with_parcels = []
-for directory in Path("../ALKIS").iterdir():
+for directory in Path("ALKIS").iterdir():
     buildings_path = directory / "GebauedeBauwerk.shp"
     parcels_path = directory / "NutzungFlurstueck.shp"
     buildings_gdf = gpd.read_file(buildings_path, engine="pyogrio", use_arrow=True, columns=building_cols)

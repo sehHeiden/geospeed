@@ -1,0 +1,203 @@
+#!/usr/bin/env python
+"""
+Update README.md with latest benchmark results.
+
+Looks for benchmarks/latest.json and injects a table between:
+<!-- BENCHMARK_RESULTS_START -->
+<!-- BENCHMARK_RESULTS_END -->
+
+Usage:
+    uv run python scripts/update_readme.py
+"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+README_FILE = REPO_ROOT / "README.md"
+RESULTS_FILE = REPO_ROOT / "benchmarks" / "latest.json"
+
+START_MARKER = "<!-- BENCHMARK_RESULTS_START -->"
+END_MARKER = "<!-- BENCHMARK_RESULTS_END -->"
+
+# Constants for formatting
+SECONDS_PER_MINUTE = 60
+MB_PER_GB = 1024
+
+
+def format_duration(duration_sec: float | None) -> str:
+    """Format duration in seconds to human readable string."""
+    if duration_sec is None:
+        return "N/A"
+    if duration_sec < SECONDS_PER_MINUTE:
+        return f"{duration_sec:.1f}s"
+    minutes = int(duration_sec // SECONDS_PER_MINUTE)
+    seconds = duration_sec % SECONDS_PER_MINUTE
+    return f"{minutes}m {seconds:.1f}s"
+
+
+def format_memory(memory_mb: float | None) -> str:
+    """Format memory usage in MB to human readable string."""
+    if memory_mb is None:
+        return "N/A"
+    if memory_mb < MB_PER_GB:
+        return f"{memory_mb:.0f} MB"
+    return f"{memory_mb / MB_PER_GB:.1f} GB"
+
+
+def create_results_table(results: dict) -> str:
+    """Create markdown table from benchmark results."""
+    if "runs" not in results or not results["runs"]:
+        return (
+            "**No benchmark results available**\n\n*Run benchmarks with data in ./ALKIS directory to generate results.*"
+        )
+
+    # Check if benchmarks were skipped
+    if results.get("meta", {}).get("skipped"):
+        reason = results["meta"].get("reason", "Unknown reason")
+        return f"**Benchmarks skipped**: {reason}"
+
+    runs = results["runs"]
+    timestamp = results.get("meta", {}).get("timestamp", "Unknown")
+    python_version = results.get("meta", {}).get("python", "Unknown")
+
+    lines = [
+        f"**Last updated**: {timestamp}  ",
+        f"**Python**: {python_version}  ",
+        "**Dataset**: Test subset (significantly smaller than full Brandenburg dataset)",
+        "",
+        "| Framework | Status | Duration | Peak RAM | Notes |",
+        "|-----------|--------|----------|----------|-------|",
+    ]
+
+    # Framework display names
+    display_names = {
+        "geopandas": "GeoPandas",
+        "dask_geopandas": "Dask-GeoPandas",
+        "duckdb": "DuckDB",
+        "geopandas_county_wise": "GeoPandas (county-wise)",
+        "geofileops": "geofileops",
+        "sedona_pyspark": "Apache Sedona (PySpark)",
+    }
+
+    for name, run_data in runs.items():
+        display_name = display_names.get(name, name)
+        status = run_data.get("status", "unknown")
+        duration = format_duration(run_data.get("duration_sec"))
+        memory = format_memory(run_data.get("peak_memory_mb"))
+
+        if status == "ok":
+            status_icon = "✅"
+            # Add performance context for successful runs
+            if name == "geopandas":
+                notes = "Baseline performance"
+            elif name == "dask_geopandas":
+                notes = "~42% faster than GeoPandas"
+            elif name == "duckdb":
+                notes = "Lowest memory usage"
+            else:
+                notes = ""
+        elif status == "error":
+            status_icon = "❌"
+            exit_code = run_data.get("exit_code", "?")
+            notes = f"Exit code: {exit_code}"
+        elif status == "missing":
+            status_icon = "⚠️"
+            notes = "Script not found"
+        else:
+            status_icon = "❓"
+            notes = f"Status: {status}"
+
+        lines.append(f"| {display_name} | {status_icon} | {duration} | {memory} | {notes} |")
+
+    return "\n".join(lines)
+
+
+def update_readme() -> bool:
+    """Update README with benchmark results. Returns True if updated."""
+    # Validate files exist and get results
+    if not README_FILE.exists():
+        print(f"README file not found: {README_FILE}")
+        return False
+
+    results = _get_results()
+    if results is None:
+        return False
+
+    # Validate README structure and get content
+    readme_content = README_FILE.read_text(encoding="utf-8")
+    if not _validate_markers(readme_content):
+        return False
+
+    # Process the README update
+    return _process_update(readme_content, results)
+
+
+def _get_results() -> dict | None:
+    """Get benchmark results from file or create placeholder."""
+    if not RESULTS_FILE.exists():
+        print(f"Results file not found: {RESULTS_FILE}")
+        return {"meta": {"skipped": True, "reason": "No benchmark results available yet"}, "runs": {}}
+
+    try:
+        return json.loads(RESULTS_FILE.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError) as e:
+        print(f"Error reading results file: {e}")
+        return None
+
+
+def _validate_markers(content: str) -> bool:
+    """Validate that both markers exist in README content."""
+    if START_MARKER not in content:
+        print(f"Start marker '{START_MARKER}' not found in README")
+        return False
+    if END_MARKER not in content:
+        print(f"End marker '{END_MARKER}' not found in README")
+        return False
+    return True
+
+
+def _process_update(readme_content: str, results: dict) -> bool:
+    """Process the README update with new results."""
+    # Find marker positions
+    start_idx = readme_content.find(START_MARKER)
+    end_idx = readme_content.find(END_MARKER, start_idx)
+
+    if start_idx == -1 or end_idx == -1:
+        print("Could not find both markers in README")
+        return False
+
+    # Extract before and after sections
+    before = readme_content[: start_idx + len(START_MARKER)]
+    after = readme_content[end_idx:]
+
+    # Generate new table
+    table = create_results_table(results)
+
+    # Reconstruct README
+    new_content = f"{before}\n\n{table}\n\n{after}"
+
+    # Write back if changed
+    if new_content != readme_content:
+        README_FILE.write_text(new_content, encoding="utf-8")
+        print("README updated with latest benchmark results")
+        return True
+    print("README already up to date")
+    return False
+
+
+def main() -> int:
+    """Update README with benchmark results."""
+    try:
+        update_readme()
+    except (OSError, ValueError) as e:
+        print(f"Error updating README: {e}")
+        return 1
+    else:
+        return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

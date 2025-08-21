@@ -1,0 +1,78 @@
+{
+  "meta": {
+    "timestamp": "2025-08-21T19:46:09Z",
+    "python": "3.12.11",
+    "data_dir": "F:\\Programmierung\\Python\\geospeed\\ALKIS_CI"
+  },
+  "runs": {
+    "geopandas": {
+      "status": "ok",
+      "duration_sec": 9.742,
+      "exit_code": 0,
+      "peak_memory_mb": 529.5
+    },
+    "dask_geopandas": {
+      "status": "ok",
+      "duration_sec": 5.572,
+      "exit_code": 0,
+      "peak_memory_mb": 733.5
+    },
+    "duckdb": {
+      "status": "ok",
+      "duration_sec": 11.709,
+      "exit_code": 0,
+      "peak_memory_mb": 333.1
+    },
+    "geopandas_county_wise": {
+      "status": "error",
+      "duration_sec": 211.813,
+      "exit_code": 1,
+      "peak_memory_mb": 3109.1,
+      "log_tail": [
+        "    buildings_gdf = gpd.read_file(buildings_path, engine=\"pyogrio\", use_arrow=True, columns=building_cols)",
+        "                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"F:\\Programmierung\\Python\\geospeed\\.venv\\Lib\\site-packages\\geopandas\\io\\file.py\", line 294, in _read_file",
+        "    return _read_file_pyogrio(",
+        "           ^^^^^^^^^^^^^^^^^^^",
+        "  File \"F:\\Programmierung\\Python\\geospeed\\.venv\\Lib\\site-packages\\geopandas\\io\\file.py\", line 547, in _read_file_pyogrio",
+        "    return pyogrio.read_dataframe(path_or_bytes, bbox=bbox, **kwargs)",
+        "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"F:\\Programmierung\\Python\\geospeed\\.venv\\Lib\\site-packages\\pyogrio\\geopandas.py\", line 261, in read_dataframe",
+        "    result = read_func(",
+        "             ^^^^^^^^^^",
+        "  File \"F:\\Programmierung\\Python\\geospeed\\.venv\\Lib\\site-packages\\pyogrio\\raw.py\", line 287, in read_arrow",
+        "    with open_arrow(",
+        "         ^^^^^^^^^^^",
+        "  File \"C:\\Users\\sebas\\AppData\\Roaming\\uv\\python\\cpython-3.12.11-windows-x86_64-none\\Lib\\contextlib.py\", line 137, in __enter__",
+        "    return next(self.gen)",
+        "           ^^^^^^^^^^^^^^",
+        "  File \"pyogrio\\\\_io.pyx\", line 1490, in ogr_open_arrow",
+        "  File \"pyogrio\\\\_io.pyx\", line 219, in pyogrio._io.ogr_open",
+        "pyogrio.errors.DataSourceError: ALKIS\\potsdam.qgz\\GebauedeBauwerk.shp: No such file or directory"
+      ]
+    },
+    "geofileops": {
+      "status": "error",
+      "duration_sec": 0.067,
+      "exit_code": 1,
+      "peak_memory_mb": 17.1,
+      "log_tail": [
+        "",
+        "Traceback (most recent call last):",
+        "  File \"F:\\Programmierung\\Python\\geospeed\\geospeed\\geofileops.py\", line 51, in <module>",
+        "    gfo.create_spatial_index(buildings_path)",
+        "    ^^^^^^^^^^^^^^^^^^^^^^^^",
+        "AttributeError: module 'geofileops' has no attribute 'create_spatial_index'"
+      ]
+    },
+    "sedona_pyspark": {
+      "status": "error",
+      "duration_sec": 0.503,
+      "exit_code": 1,
+      "peak_memory_mb": 72.4,
+      "log_tail": [
+        "JAVA_HOME not set and no Java installation found"
+      ]
+    }
+  }
+}

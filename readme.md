@@ -1,19 +1,36 @@
----
-title: Speed Comparison on some Modern GIS tools
-author: SeHe
-type: reference
-date: 2024-10-19
-tags: ["Python", "GIS",  "GeoPandas", "Dask", "DuckDB"]
-categories: "GIS"
-draft: true
-comments: true
----
+# GeoSpeed 🚀
 
-GIS can change with current technology such as Apache Arrow, and perhaps also with some other techniques.
-In Pythonland, Geopandas has improved performance over time. I also wanted to try Dask, DuckDB and Apache Sedona.
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![Benchmarks](https://github.com/sehe/geospeed/workflows/Benchmarks/badge.svg)](https://github.com/sehe/geospeed/actions/workflows/benchmark.yml)
+[![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Please contact me if you read this and think I could have improved the code quality and speed.
-I use some public data, which is still widely used in Germany, as shape files.
+> **Speed Comparison of Modern GIS Tools for Spatial Overlay Operations**
+
+A comprehensive performance comparison of modern Python GIS frameworks including GeoPandas, Dask-GeoPandas, DuckDB Spatial, and Apache Sedona. This project benchmarks spatial overlay operations using real-world ALKIS building and parcel data from Brandenburg, Germany.
+
+## 📊 Quick Results
+
+| Framework | Duration | Peak RAM | Performance |
+|-----------|----------|----------|--------------|
+| **Dask-GeoPandas** | 169.6s ± 1.9s | 19 GB | 🏆 **Fastest** |
+| **DuckDB (persistent)** | 233.4s ± 6.8s | 6.2 GB | 🧠 **Memory Efficient** |
+| **GeoPandas (arrow)** | 264.6s ± 4.9s | 14 GB | ⚖️ **Balanced** |
+| **DuckDB (memory)** | 271.5s ± 2.8s | 7 GB | 💾 **Low Memory** |
+| **GeoPandas** | 287.5s ± 1.5s | 14 GB | 📚 **Baseline** |
+
+## 🔬 About This Project
+
+GIS technology is evolving rapidly with modern tools like Apache Arrow, improved pandas implementations, and distributed computing frameworks. This project evaluates how these technologies perform in real-world spatial analysis scenarios.
+
+**Key Focus Areas:**
+- 🏗️ **Spatial Overlay Operations** - Computationally intensive GIS tasks
+- 📈 **Performance Benchmarking** - Execution time and memory usage
+- 🔄 **Modern Technologies** - Latest versions of popular GIS libraries
+- 📊 **Real-World Data** - Using actual German cadastral data (ALKIS)
+
+> **Note:** This project uses public ALKIS data from Brandenburg, Germany, provided as shapefiles. If you have suggestions for improving code quality or performance, please feel free to contribute!
 
 # The data
 
@@ -239,3 +256,26 @@ Also, DuckDB does not support raster files.
 
 If you already have a Spark cluster, Sedona may be a valid option. So far Dask is the fastest solution but uses a huge amount of additional memory.
 Maybe one day I can recommend DuckDB instead.
+
+# Automated Benchmark Results
+
+> ⚠️ **Note:** The automated benchmarks use a **smaller test dataset** compared to the full Brandenburg ALKIS data used in the detailed analysis above. These results are primarily for CI/CD validation and relative performance comparison.
+
+<!-- BENCHMARK_RESULTS_START -->
+
+**Last updated**: 2025-08-21T19:46:09Z  
+**Python**: 3.12.11  
+**Dataset**: Test subset (significantly smaller than full Brandenburg dataset)
+
+| Framework | Status | Duration | Peak RAM | Notes |
+|-----------|--------|----------|----------|-------|
+| GeoPandas | ✅ | 9.7s | 530 MB | Baseline performance |
+| Dask-GeoPandas | ✅ | 5.6s | 734 MB | ~42% faster than GeoPandas |
+| DuckDB | ✅ | 11.7s | 333 MB | Lowest memory usage |
+| GeoPandas (county-wise) | ❌ | 3m 31.8s | 3.0 GB | Exit code: 1 |
+| geofileops | ❌ | 0.1s | 17 MB | Exit code: 1 |
+| Apache Sedona (PySpark) | ❌ | 0.5s | 72 MB | Exit code: 1 |
+
+<!-- BENCHMARK_RESULTS_END -->
+
+*Automated results are updated by CI/CD pipeline and use a smaller test dataset for validation purposes. For comprehensive performance analysis with full-scale data, see the detailed benchmarks above.*

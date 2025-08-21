@@ -2,15 +2,15 @@
 
 import time
 import warnings
-from pathlib import Path
 
 import geopandas as gpd
 import pandas as pd
 
+from .utils import get_file_paths
+
 warnings.filterwarnings("ignore")
 
 start = time.time()
-
 building_cols = [
     "oid",
     "aktualit",
@@ -23,16 +23,15 @@ building_cols = [
 ]
 parcels_cols = ["oid", "aktualit", "nutzart", "bez", "flstkennz", "geometry"]
 
-buildings_path = list(Path("./ALKIS").glob("./*/GebauedeBauwerk.shp"))
-parcels_path = list(Path("./ALKIS").glob("./*/NutzungFlurstueck.shp"))
+buildings_paths, parcels_paths = get_file_paths()
 
 buildings_gdf = gpd.GeoDataFrame(
-    pd.concat([gpd.read_file(x, columns=building_cols, engine="pyogrio", use_arrow=False) for x in buildings_path])
+    pd.concat([gpd.read_file(x, columns=building_cols, engine="pyogrio", use_arrow=False) for x in buildings_paths])
 )
 buildings_gdf = buildings_gdf.drop_duplicates(subset="oid", keep="first")
 
 parcels_gdf = gpd.GeoDataFrame(
-    pd.concat([gpd.read_file(x, columns=parcels_cols, engine="pyogrio", use_arrow=False) for x in parcels_path])
+    pd.concat([gpd.read_file(x, columns=parcels_cols, engine="pyogrio", use_arrow=False) for x in parcels_paths])
 )
 parcels_gdf = parcels_gdf.drop_duplicates(subset="oid", keep="first")
 print(f"Geopandas: Loading data duration: {(time.time() - start):.0f} s.")
