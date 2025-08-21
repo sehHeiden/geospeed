@@ -1,7 +1,7 @@
 name: Benchmarks
 on:
   pull_request: { paths: ['pyproject.toml', 'uv.lock'] }
-  push: { branches: [master], paths: ['pyproject.toml', 'uv.lock', 'geospeed/**', 'scripts/**'] }
+  push: { branches: [master], paths: ['pyproject.toml', 'uv.lock', 'geospeed/**', 'scripts/**', '.github/workflows/**'] }
   workflow_dispatch:
 
 jobs:
