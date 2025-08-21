@@ -1,6 +1,7 @@
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+# CI: Updated to test workflow registration
 
 [project]
 name = "geospeed"
