@@ -7,7 +7,14 @@ from pathlib import Path
 import geopandas as gpd
 import pandas as pd
 
-from .utils import get_data_dir
+try:
+    from .utils import get_data_dir
+except ImportError:
+    # Handle when run as standalone script
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from geospeed.utils import get_data_dir
 
 warnings.filterwarnings("ignore")
 

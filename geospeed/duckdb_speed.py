@@ -4,7 +4,14 @@ import time
 
 import duckdb
 
-from .utils import get_file_paths
+try:
+    from .utils import get_file_paths
+except ImportError:
+    # Handle when run as standalone script
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from geospeed.utils import get_file_paths
 
 save_name = None
 con = duckdb.connect(save_name if save_name else ":memory:", config={"threads": 15, "memory_limit": "20GB"})

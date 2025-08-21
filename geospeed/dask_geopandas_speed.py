@@ -7,7 +7,14 @@ import dask_geopandas as dpd
 import geopandas as gpd
 import pandas as pd
 
-from .utils import get_file_paths
+try:
+    from .utils import get_file_paths
+except ImportError:
+    # Handle when run as standalone script
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from geospeed.utils import get_file_paths
 
 
 # Function to apply the overlay in each partition using GeoPandas
