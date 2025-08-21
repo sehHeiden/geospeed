@@ -1,7 +1,22 @@
-/.venv/
-/ALKIS/
+# Data directories
+ALKIS/
+ALKIS_TEST/
+
+# Output files
 *.geoparquet
 *.parquet
+*.gpkg
+*.fgb
+
+# Environment & config
 .env
-/.idea
-**/.ipynb_checkpoints
+/.idea/
+
+# Cache directories  
+.mypy_cache/
+.ruff_cache/
+**/.ipynb_checkpoints/
+__pycache__/
+
+# Virtual environment
+/.venv/

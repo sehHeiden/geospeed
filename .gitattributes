@@ -1,23 +1,21 @@
 # Exclude Jupyter notebooks from language statistics (too much HTML/JSON noise)
 *.ipynb linguist-detectable=false
-
 # Exclude HTML files from language statistics
 *.html linguist-detectable=false
-
 # Ensure Python files are properly detected
 *.py linguist-detectable=true
 *.py linguist-language=Python
-
 # Handle documentation files
 *.md linguist-documentation=true
 *.rst linguist-documentation=true
-
 # Configuration and data files
 *.yml linguist-data=true
 *.yaml linguist-data=true
 *.json linguist-data=true
 *.toml linguist-data=true
-
 # LaTeX files (for your academic work)
 *.tex linguist-detectable=true
 *.bib linguist-data=true
+*.dbf filter=lfs diff=lfs merge=lfs -text
+*.shp filter=lfs diff=lfs merge=lfs -text
+*.shx filter=lfs diff=lfs merge=lfs -text
