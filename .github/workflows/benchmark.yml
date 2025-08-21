@@ -35,8 +35,14 @@ jobs:
       
       - name: Set JAVA_HOME and check system specs
         run: |
-          echo "JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64" >> $GITHUB_ENV
-          export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+          # Set JAVA_HOME based on architecture
+          if [[ $(uname -m) == "aarch64" ]]; then
+            JAVA_HOME_PATH="/usr/lib/jvm/java-11-openjdk-arm64"
+          else
+            JAVA_HOME_PATH="/usr/lib/jvm/java-11-openjdk-amd64"
+          fi
+          echo "JAVA_HOME=$JAVA_HOME_PATH" >> $GITHUB_ENV
+          export JAVA_HOME="$JAVA_HOME_PATH"
           echo "JAVA_HOME set to: $JAVA_HOME"
           java -version
           echo "=== System Specs ==="
