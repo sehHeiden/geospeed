@@ -63,9 +63,18 @@ try:
     building_columns = ["oid", "gebnutzbez", "gfkzshh", "name", "anzahlgs", "gmdschl", "lagebeztxt", "funktion"]
     usage_columns = ["oid", "nutzart", "bez", "flstkennz"]
 
+    # Import utils for data directory detection
+    import sys
+    from pathlib import Path
+    repo_root = Path(__file__).resolve().parents[1]
+    sys.path.insert(0, str(repo_root))
+    from geospeed.utils import get_data_dir
+    
     # Check for data directory
-    data_dir = Path("ALKIS")
-    if not data_dir.exists() or not any(data_dir.glob("*/GebauedeBauwerk.shp")):
+    try:
+        data_dir = get_data_dir()
+        print(f"Using data directory: {data_dir}")
+    except FileNotFoundError:
         print("No ALKIS data found - skipping Sedona benchmark")
         sys.exit(0)
 
@@ -73,7 +82,7 @@ try:
     build_gdf = (
         sedona.read.format("shapefile")
         .option("recursiveFileLookup", "true")
-        .load("ALKIS/*/GebauedeBauwerk.shp")
+        .load(f"{data_dir}/*/GebauedeBauwerk.shp")
         .dropDuplicates(["oid"])
     )
     build_gdf = build_gdf.select(
@@ -85,7 +94,7 @@ try:
     use_gdf = (
         sedona.read.format("shapefile")
         .option("recursiveFileLookup", "true")
-        .load("ALKIS/*/NutzungFlurstueck.shp")
+        .load(f"{data_dir}/*/NutzungFlurstueck.shp")
         .dropDuplicates(["oid"])
     )
     use_gdf = use_gdf.select(
