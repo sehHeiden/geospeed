@@ -1,3 +1,33 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "geospeed"
+version = "0.1.0"
+description = "Speed comparison of modern GIS tools for spatial overlay operations"
+authors = [{name = "SeHe"}]
+requires-python = ">=3.12.11"
+dependencies = [
+    "geopandas==1.0.1",
+    "pyogrio==0.9.0",
+    "fiona==1.10.1",
+    "pyarrow",
+    "dask-geopandas",
+    "matplotlib",
+    "memory-profiler",
+    "duckdb~=1.1.0",
+    "pyspark==3.4.1",
+    "apache-sedona[spark]==1.6.1",
+]
+
+[dependency-groups]
+dev = [
+    "mypy",
+    "ruff",
+    "ty>=0.0.1a19",
+]
+
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
 exclude = [
