@@ -32,6 +32,9 @@ jobs:
       - name: Set JAVA_HOME
         run: echo "JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64" >> $GITHUB_ENV
       - run: uv sync && mkdir -p ALKIS_TEST/test_county
+      
+      - name: Install geofileops for benchmarking
+        run: uv add 'geofileops>=0.8.0'
       - run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             uv run python -c "import geopandas, pyogrio, duckdb; print('✅ OK')"

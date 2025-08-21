@@ -14,6 +14,16 @@ except ImportError as e:
     print("See: https://github.com/theroggy/geofileops#installation")
     sys.exit(1)
 
+# Add import handling for standalone execution
+try:
+    from .utils import get_data_dir
+except ImportError:
+    # Handle when run as standalone script
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from geospeed.utils import get_data_dir
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     warnings.filterwarnings("ignore")
@@ -38,13 +48,6 @@ if __name__ == "__main__":
         "flstkennz",  # "geometry"
     ]
 
-    # Use utils to get data directory
-    import sys
-    from pathlib import Path
-    repo_root = Path(__file__).resolve().parents[1] 
-    sys.path.insert(0, str(repo_root))
-    from geospeed.utils import get_data_dir
-    
     try:
         alkis_dir = get_data_dir()
         print(f"Using data directory: {alkis_dir}")
