@@ -7,6 +7,8 @@ from pathlib import Path
 import geopandas as gpd
 import pandas as pd
 
+from .utils import get_data_dir
+
 warnings.filterwarnings("ignore")
 
 start = time.time()
@@ -23,8 +25,9 @@ building_cols = [
 ]
 parcels_cols = ["oid", "aktualit", "nutzart", "bez", "flstkennz", "geometry"]
 
+data_dir = get_data_dir()
 buildings_with_parcels = []
-for directory in Path("ALKIS").iterdir():
+for directory in data_dir.iterdir():
     buildings_path = directory / "GebauedeBauwerk.shp"
     parcels_path = directory / "NutzungFlurstueck.shp"
     buildings_gdf = gpd.read_file(buildings_path, engine="pyogrio", use_arrow=True, columns=building_cols)

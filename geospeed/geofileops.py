@@ -38,9 +38,22 @@ if __name__ == "__main__":
         "flstkennz",  # "geometry"
     ]
 
-    alkis_dir = Path("H:/temp/ALKIS")
-    buildings_paths = list(alkis_dir.glob("./*/GebauedeBauwerk.shp"))
-    parcels_paths = list(alkis_dir.glob("./*/NutzungFlurstueck.shp"))
+    # Use utils to get data directory
+    import sys
+    from pathlib import Path
+    repo_root = Path(__file__).resolve().parents[1] 
+    sys.path.insert(0, str(repo_root))
+    from geospeed.utils import get_data_dir
+    
+    try:
+        alkis_dir = get_data_dir()
+        print(f"Using data directory: {alkis_dir}")
+    except FileNotFoundError:
+        print("No ALKIS data found - skipping geofileops benchmark")
+        sys.exit(0)
+        
+    buildings_paths = list(alkis_dir.glob("*/GebauedeBauwerk.shp"))
+    parcels_paths = list(alkis_dir.glob("*/NutzungFlurstueck.shp"))
 
     buildings_path = alkis_dir / "GebauedeBauwerk.gpkg"
     if not buildings_path.exists():
@@ -48,7 +61,15 @@ if __name__ == "__main__":
             gfo.copy_layer(
                 src=path, dst=buildings_path, dst_layer=buildings_path.stem, append=True, create_spatial_index=False
             )
-        gfo.create_spatial_index(buildings_path)
+        # Try different API methods for spatial index creation
+        try:
+            gfo.create_spatial_index(buildings_path)
+        except AttributeError:
+            # Try alternative API
+            try:
+                gfo.add_spatial_index(buildings_path) 
+            except AttributeError:
+                print("Warning: No spatial index creation method found, continuing without index")
 
     parcels_path = alkis_dir / "NutzungFlurstueck.gpkg"
     if not parcels_path.exists():
@@ -56,7 +77,15 @@ if __name__ == "__main__":
             gfo.copy_layer(
                 src=path, dst=parcels_path, dst_layer=parcels_path.stem, append=True, create_spatial_index=False
             )
-        gfo.create_spatial_index(parcels_path)
+        # Try different API methods for spatial index creation  
+        try:
+            gfo.create_spatial_index(parcels_path)
+        except AttributeError:
+            # Try alternative API
+            try:
+                gfo.add_spatial_index(parcels_path)
+            except AttributeError:
+                print("Warning: No spatial index creation method found, continuing without index")
 
     print(f"geofileops: Prepare data duration: {(time.time() - start):.0f} s.")
 
