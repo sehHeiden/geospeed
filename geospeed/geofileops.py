@@ -64,15 +64,8 @@ if __name__ == "__main__":
             gfo.copy_layer(
                 src=path, dst=buildings_path, dst_layer=buildings_path.stem, append=True, create_spatial_index=False
             )
-        # Try different API methods for spatial index creation
-        try:
-            gfo.create_spatial_index(buildings_path)
-        except AttributeError:
-            # Try alternative API
-            try:
-                gfo.add_spatial_index(buildings_path) 
-            except AttributeError:
-                print("Warning: No spatial index creation method found, continuing without index")
+        # Skip spatial index creation for now due to API compatibility issues
+        print("Note: Skipping spatial index creation for buildings - proceeding without index")
 
     parcels_path = alkis_dir / "NutzungFlurstueck.gpkg"
     if not parcels_path.exists():
@@ -80,15 +73,8 @@ if __name__ == "__main__":
             gfo.copy_layer(
                 src=path, dst=parcels_path, dst_layer=parcels_path.stem, append=True, create_spatial_index=False
             )
-        # Try different API methods for spatial index creation  
-        try:
-            gfo.create_spatial_index(parcels_path)
-        except AttributeError:
-            # Try alternative API
-            try:
-                gfo.add_spatial_index(parcels_path)
-            except AttributeError:
-                print("Warning: No spatial index creation method found, continuing without index")
+        # Skip spatial index creation for now due to API compatibility issues
+        print("Note: Skipping spatial index creation for parcels - proceeding without index")
 
     print(f"geofileops: Prepare data duration: {(time.time() - start):.0f} s.")
 
