@@ -47,13 +47,20 @@ jobs:
           GDAL_VERSION=$(gdal-config --version)
           echo "System GDAL version: $GDAL_VERSION"
           
-          # Try to install geofileops, with fallback for version compatibility
-          if ! uv add 'geofileops>=0.8.0'; then
-            echo "Failed to install geofileops with latest GDAL bindings"
-            echo "Trying with specific GDAL version constraint..."
-            # Try with older GDAL bindings that match system version
-            GDAL_VERSION="$GDAL_VERSION" uv add 'geofileops>=0.8.0' 'GDAL<3.9,>=3.8' || {
-              echo "Could not install geofileops with compatible GDAL version"
+          # Install geofileops with GDAL version matching system libgdal
+          if [[ "$GDAL_VERSION" == "3.8.4" ]]; then
+            echo "Installing geofileops with GDAL 3.8.4 to match system libgdal"
+            uv add 'geofileops>=0.8.0' 'GDAL==3.8.4' || {
+              echo "Failed to install geofileops with GDAL 3.8.4, trying alternative"
+              uv add 'geofileops>=0.8.0' 'GDAL>=3.8.0,<3.8.5' || {
+                echo "Could not install geofileops with compatible GDAL version"
+                echo "Skipping geofileops benchmark in this run"
+              }
+            }
+          else
+            echo "Installing geofileops with system GDAL version $GDAL_VERSION"
+            uv add 'geofileops>=0.8.0' || {
+              echo "Could not install geofileops"
               echo "Skipping geofileops benchmark in this run"
             }
           fi
