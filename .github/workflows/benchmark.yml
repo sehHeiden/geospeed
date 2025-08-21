@@ -27,14 +27,24 @@ jobs:
         with:
           enable-cache: true
       
-      - run: sudo apt-get update -qq && sudo apt-get install -y gdal-bin libgdal-dev openjdk-11-jdk
+      - name: Install GDAL and Java
+        run: |
+          # Add UbuntuGIS PPA for newer GDAL version
+          sudo add-apt-repository ppa:ubuntugis/ppa -y
+          sudo apt-get update -qq
+          sudo apt-get install -y gdal-bin libgdal-dev openjdk-11-jdk
       
       - name: Set JAVA_HOME
         run: echo "JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64" >> $GITHUB_ENV
       - run: uv sync && mkdir -p ALKIS_TEST/test_county
       
       - name: Install geofileops for benchmarking
-        run: uv add 'geofileops>=0.8.0'
+        run: |
+          # Check system GDAL version
+          GDAL_VERSION=$(gdal-config --version)
+          echo "System GDAL version: $GDAL_VERSION"
+          # Install geofileops with newer GDAL from UbuntuGIS PPA
+          uv add 'geofileops>=0.8.0'
       - run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             uv run python -c "import geopandas, pyogrio, duckdb; print('✅ OK')"
