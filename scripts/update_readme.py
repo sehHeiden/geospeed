@@ -94,7 +94,13 @@ def create_results_table(results: dict) -> str:
             if name == "geopandas":
                 notes = "Baseline performance"
             elif name == "dask_geopandas":
-                notes = "~42% faster than GeoPandas"
+                # Calculate actual performance vs geopandas
+                gp_time = runs.get("geopandas", {}).get("duration_sec")
+                if gp_time and run_data.get("duration_sec"):
+                    speedup = (gp_time - run_data["duration_sec"]) / gp_time * 100
+                    notes = f"~{speedup:.0f}% faster than GeoPandas" if speedup > 0 else "Slower than GeoPandas"
+                else:
+                    notes = "Fast performance"
             elif name == "duckdb":
                 notes = "Lowest memory usage"
             else:
