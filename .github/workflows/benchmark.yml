@@ -6,7 +6,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-4-cores
     permissions:
       contents: write  # Allow pushing commits back to repo
     timeout-minutes: ${{ github.event_name == 'pull_request' && 10 || 60 }}
