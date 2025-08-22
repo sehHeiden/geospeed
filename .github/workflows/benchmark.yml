@@ -23,7 +23,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-apt-
       
-      - uses: astral-sh/setup-uv@v4
+      - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
       
