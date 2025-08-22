@@ -1,6 +1,7 @@
 """Test the speed of intersection with geofileops."""
 
 import logging
+import os
 import shutil
 import subprocess
 import sys
@@ -8,6 +9,8 @@ import time
 import warnings
 from pathlib import Path
 from typing import NoReturn
+
+import pandas as pd
 
 try:
     # Remove current script directory from path to avoid circular import
@@ -100,6 +103,9 @@ if __name__ == "__main__":
         ogr2ogr = shutil.which("ogr2ogr")
         if ogr2ogr:
             print(f"Building {gpkg_path.name} with ogr2ogr...")
+            # Speed up SQLite-backed writes (safe for CI ephemeral FS)
+            env = os.environ.copy()
+            env["OGR_SQLITE_SYNCHRONOUS"] = "OFF"
             # First file: create
             first = paths[0]
             subprocess.run(  # noqa: S603
@@ -116,6 +122,7 @@ if __name__ == "__main__":
                 ],
                 check=True,
                 text=True,
+                env=env,
             )
             # Append remaining
             for shp in paths[1:]:
@@ -134,6 +141,7 @@ if __name__ == "__main__":
                     ],
                     check=True,
                     text=True,
+                    env=env,
                 )
             return
 
@@ -157,7 +165,7 @@ if __name__ == "__main__":
         if not dfs:
             err = f"No data read for {layer_name}"
             raise RuntimeError(err)
-        out = gpd.pd.concat(dfs, ignore_index=True)
+        out = pd.concat(dfs, ignore_index=True)
         out.to_file(gpkg_path, layer=layer_name, driver="GPKG")
 
     buildings_path = alkis_dir / "GebauedeBauwerk.gpkg"
@@ -184,15 +192,33 @@ if __name__ == "__main__":
 
     start_intersection = time.time()
     buildings_with_parcels_path = alkis_dir / "buildings_with_parcels.gpkg"
-    # Use geofileops for intersection
+    # Use geofileops for intersection, with version-tolerant fallback
     gfo_api = gfo.gfo if hasattr(gfo, "gfo") else gfo
-    gfo_api.intersection(
-        buildings_path,
-        parcels_path,
-        buildings_with_parcels_path,
-        input1_columns=building_cols,
-        input2_columns=parcels_cols,
-    )
+    try:
+        if hasattr(gfo_api, "intersection"):
+            print("Running geofileops.intersection() ...")
+            gfo_api.intersection(
+                buildings_path,
+                parcels_path,
+                buildings_with_parcels_path,
+                input1_columns=building_cols,
+                input2_columns=parcels_cols,
+            )
+        elif hasattr(gfo_api, "overlay"):
+            print("Running geofileops.overlay(operation='intersection') ...")
+            gfo_api.overlay(
+                input1=buildings_path,
+                input2=parcels_path,
+                out=buildings_with_parcels_path,
+                operation="intersection",
+                input1_columns=building_cols,
+                input2_columns=parcels_cols,
+            )
+        else:
+            err = "Neither 'intersection' nor 'overlay' method available in geofileops"
+            _raise_geofileops_methods_error(err)
+    except AttributeError as e:
+        _handle_attribute_error(e, gfo, gfo_api)
     print(f"geofileops: Load, intersection, save takes: {(time.time() - start_intersection):.0f} s.")
 
     print(f"geofileops: Total duration: {(time.time() - start):.0f} s.")
