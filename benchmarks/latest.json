@@ -1,77 +1,70 @@
 {
   "meta": {
-    "timestamp": "2025-08-21T19:46:09Z",
+    "timestamp": "2025-08-22T08:10:00Z",
     "python": "3.12.11",
-    "data_dir": "F:\\Programmierung\\Python\\geospeed\\ALKIS_CI"
+    "data_dir": "ALKIS_CI"
   },
   "runs": {
     "geopandas": {
       "status": "ok",
-      "duration_sec": 9.742,
+      "duration_sec": 11.856,
       "exit_code": 0,
-      "peak_memory_mb": 529.5
+      "peak_memory_mb": 525.4
     },
     "dask_geopandas": {
       "status": "ok",
-      "duration_sec": 5.572,
+      "duration_sec": 5.873,
       "exit_code": 0,
-      "peak_memory_mb": 733.5
+      "peak_memory_mb": 762.3
     },
     "duckdb": {
       "status": "ok",
-      "duration_sec": 11.709,
+      "duration_sec": 12.849,
       "exit_code": 0,
-      "peak_memory_mb": 333.1
+      "peak_memory_mb": 302.8
     },
     "geopandas_county_wise": {
-      "status": "error",
-      "duration_sec": 211.813,
-      "exit_code": 1,
-      "peak_memory_mb": 3109.1,
-      "log_tail": [
-        "    buildings_gdf = gpd.read_file(buildings_path, engine=\"pyogrio\", use_arrow=True, columns=building_cols)",
-        "                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
-        "  File \"F:\\Programmierung\\Python\\geospeed\\.venv\\Lib\\site-packages\\geopandas\\io\\file.py\", line 294, in _read_file",
-        "    return _read_file_pyogrio(",
-        "           ^^^^^^^^^^^^^^^^^^^",
-        "  File \"F:\\Programmierung\\Python\\geospeed\\.venv\\Lib\\site-packages\\geopandas\\io\\file.py\", line 547, in _read_file_pyogrio",
-        "    return pyogrio.read_dataframe(path_or_bytes, bbox=bbox, **kwargs)",
-        "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
-        "  File \"F:\\Programmierung\\Python\\geospeed\\.venv\\Lib\\site-packages\\pyogrio\\geopandas.py\", line 261, in read_dataframe",
-        "    result = read_func(",
-        "             ^^^^^^^^^^",
-        "  File \"F:\\Programmierung\\Python\\geospeed\\.venv\\Lib\\site-packages\\pyogrio\\raw.py\", line 287, in read_arrow",
-        "    with open_arrow(",
-        "         ^^^^^^^^^^^",
-        "  File \"C:\\Users\\sebas\\AppData\\Roaming\\uv\\python\\cpython-3.12.11-windows-x86_64-none\\Lib\\contextlib.py\", line 137, in __enter__",
-        "    return next(self.gen)",
-        "           ^^^^^^^^^^^^^^",
-        "  File \"pyogrio\\\\_io.pyx\", line 1490, in ogr_open_arrow",
-        "  File \"pyogrio\\\\_io.pyx\", line 219, in pyogrio._io.ogr_open",
-        "pyogrio.errors.DataSourceError: ALKIS\\potsdam.qgz\\GebauedeBauwerk.shp: No such file or directory"
-      ]
+      "status": "ok",
+      "duration_sec": 8.792,
+      "exit_code": 0,
+      "peak_memory_mb": 484.6
     },
     "geofileops": {
       "status": "error",
-      "duration_sec": 0.067,
+      "duration_sec": 0.065,
       "exit_code": 1,
-      "peak_memory_mb": 17.1,
+      "peak_memory_mb": 16.2,
       "log_tail": [
+        "Using CI dataset (ALKIS_CI)",
+        "Using data directory: ALKIS_CI",
         "",
         "Traceback (most recent call last):",
-        "  File \"F:\\Programmierung\\Python\\geospeed\\geospeed\\geofileops.py\", line 51, in <module>",
-        "    gfo.create_spatial_index(buildings_path)",
-        "    ^^^^^^^^^^^^^^^^^^^^^^^^",
-        "AttributeError: module 'geofileops' has no attribute 'create_spatial_index'"
+        "  File \"F:\\Programmierung\\Python\\geospeed\\geospeed\\geofileops.py\", line 64, in <module>",
+        "    gfo.copy_layer(",
+        "    ^^^^^^^^^^^^^^",
+        "AttributeError: module 'geofileops' has no attribute 'copy_layer'"
       ]
     },
     "sedona_pyspark": {
       "status": "error",
-      "duration_sec": 0.503,
+      "duration_sec": 0.564,
       "exit_code": 1,
-      "peak_memory_mb": 72.4,
+      "peak_memory_mb": 64.7,
       "log_tail": [
-        "JAVA_HOME not set and no Java installation found"
+        "",
+        "Traceback (most recent call last):",
+        "  File \"F:\\Programmierung\\Python\\geospeed\\geospeed\\sedona_pyspark_ci.py\", line 43, in <module>",
+        "    java_cmd = subprocess.run([\"which\", \"java\"], capture_output=True, text=True, check=True)",
+        "               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"C:\\Users\\sebas\\AppData\\Roaming\\uv\\python\\cpython-3.12.11-windows-x86_64-none\\Lib\\subprocess.py\", line 548, in run",
+        "    with Popen(*popenargs, **kwargs) as process:",
+        "         ^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"C:\\Users\\sebas\\AppData\\Roaming\\uv\\python\\cpython-3.12.11-windows-x86_64-none\\Lib\\subprocess.py\", line 1026, in __init__",
+        "    self._execute_child(args, executable, preexec_fn, close_fds,",
+        "  File \"C:\\Users\\sebas\\AppData\\Roaming\\uv\\python\\cpython-3.12.11-windows-x86_64-none\\Lib\\subprocess.py\", line 1538, in _execute_child",
+        "    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,",
+        "                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "FileNotFoundError: [WinError 2] Das System kann die angegebene Datei nicht finden"
       ]
     }
   }

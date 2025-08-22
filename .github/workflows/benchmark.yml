@@ -6,7 +6,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest-4-cores-arm
+    runs-on: ubuntu-latest
     permissions:
       contents: write  # Allow pushing commits back to repo
     timeout-minutes: ${{ github.event_name == 'pull_request' && 10 || 60 }}
@@ -35,14 +35,9 @@ jobs:
       
       - name: Set JAVA_HOME and check system specs
         run: |
-          # Set JAVA_HOME based on architecture
-          if [[ $(uname -m) == "aarch64" ]]; then
-            JAVA_HOME_PATH="/usr/lib/jvm/java-11-openjdk-arm64"
-          else
-            JAVA_HOME_PATH="/usr/lib/jvm/java-11-openjdk-amd64"
-          fi
-          echo "JAVA_HOME=$JAVA_HOME_PATH" >> $GITHUB_ENV
-          export JAVA_HOME="$JAVA_HOME_PATH"
+          # Set JAVA_HOME for x86_64 architecture
+          echo "JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64" >> $GITHUB_ENV
+          export JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
           echo "JAVA_HOME set to: $JAVA_HOME"
           java -version
           echo "=== System Specs ==="
@@ -51,7 +46,8 @@ jobs:
           echo "Memory: $(free -h | grep '^Mem:' | awk '{print $2}')"
           echo "Disk: $(df -h / | tail -1 | awk '{print $2}')"
           echo "==================="
-      - run: uv sync && mkdir -p ALKIS_TEST/test_county
+      - name: Sync dependencies and setup test directories
+        run: uv sync && mkdir -p ALKIS_TEST/test_county
       
       - name: Install geofileops for benchmarking
         run: |
@@ -59,24 +55,21 @@ jobs:
           GDAL_VERSION=$(gdal-config --version)
           echo "System GDAL version: $GDAL_VERSION"
           
-          # Install geofileops with GDAL version matching system libgdal
-          if [[ "$GDAL_VERSION" == "3.8.4" ]]; then
-            echo "Installing geofileops with GDAL 3.8.4 to match system libgdal"
-            uv add 'geofileops>=0.8.0' 'GDAL==3.8.4' || {
-              echo "Failed to install geofileops with GDAL 3.8.4, trying alternative"
-              uv add 'geofileops>=0.8.0' 'GDAL>=3.8.0,<3.8.5' || {
-                echo "Could not install geofileops with compatible GDAL version"
-                echo "Skipping geofileops benchmark in this run"
-              }
-            }
-          else
-            echo "Installing geofileops with system GDAL version $GDAL_VERSION"
-            uv add 'geofileops>=0.8.0' || {
-              echo "Could not install geofileops"
+          # Extract major.minor version for compatibility
+          GDAL_MAJOR_MINOR=$(echo $GDAL_VERSION | cut -d. -f1-2)
+          echo "GDAL major.minor: $GDAL_MAJOR_MINOR"
+          
+          # Install geofileops with compatible GDAL version
+          echo "Installing geofileops with GDAL $GDAL_VERSION compatibility"
+          uv add 'geofileops>=0.8.0' "GDAL>=$GDAL_MAJOR_MINOR.0,<$(echo $GDAL_MAJOR_MINOR | awk -F. '{print $1"."($2+1)}').0" || {
+            echo "Failed with version range, trying exact version"
+            uv add 'geofileops>=0.8.0' "GDAL==$GDAL_VERSION" || {
+              echo "Could not install geofileops with compatible GDAL version"
               echo "Skipping geofileops benchmark in this run"
             }
-          fi
-      - run: |
+          }
+      - name: Run benchmarks or smoke test
+        run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             uv run python -c "import geopandas, pyogrio, duckdb; print('✅ OK')"
           else

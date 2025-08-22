@@ -39,11 +39,18 @@ else:
     else:
         # Try to find Java with which command
         import subprocess
+
         try:
-            java_cmd = subprocess.run(["which", "java"], capture_output=True, text=True, check=True)
+            import shutil
+            which_cmd = shutil.which("which")
+            readlink_cmd = shutil.which("readlink")
+            if not which_cmd or not readlink_cmd:
+                msg = "Could not find 'which' or 'readlink' commands."
+                raise RuntimeError(msg)
+            java_cmd = subprocess.run([which_cmd, "java"], capture_output=True, text=True, check=True)  # noqa: S603
             java_bin = java_cmd.stdout.strip()
             # Get the real path in case it's a symlink
-            java_real = subprocess.run(["readlink", "-f", java_bin], capture_output=True, text=True, check=True)
+            java_real = subprocess.run([readlink_cmd, "-f", java_bin], capture_output=True, text=True, check=True)  # noqa: S603
             java_home = str(Path(java_real.stdout.strip()).parent.parent)
             os.environ["JAVA_HOME"] = java_home
             print(f"Found Java via which command, set JAVA_HOME to: {java_home}")
@@ -81,10 +88,11 @@ try:
     # Import utils for data directory detection
     import sys
     from pathlib import Path
+
     repo_root = Path(__file__).resolve().parents[1]
     sys.path.insert(0, str(repo_root))
     from geospeed.utils import get_data_dir
-    
+
     # Check for data directory
     try:
         data_dir = get_data_dir()

@@ -63,7 +63,26 @@ def create_results_table(results: dict) -> str:
     timestamp = results.get("meta", {}).get("timestamp", "Unknown")
     python_version = results.get("meta", {}).get("python", "Unknown")
 
-    lines = [
+    lines = _create_table_header(timestamp, python_version)
+
+    # Framework display names
+    display_names = _get_framework_display_names()
+
+    for name, run_data in runs.items():
+        display_name = display_names.get(name, name)
+        status = run_data.get("status", "unknown")
+        duration = format_duration(run_data.get("duration_sec"))
+        memory = format_memory(run_data.get("peak_memory_mb"))
+
+        status_icon, notes = _get_status_and_notes(status, name, run_data, runs)
+        lines.append(f"| {display_name} | {status_icon} | {duration} | {memory} | {notes} |")
+
+    return "\n".join(lines)
+
+
+def _create_table_header(timestamp: str, python_version: str) -> list[str]:
+    """Create the header section of the results table."""
+    return [
         f"**Last updated**: {timestamp}  ",
         f"**Python**: {python_version}  ",
         "**Dataset**: Test subset (significantly smaller than full Brandenburg dataset)",
@@ -72,8 +91,10 @@ def create_results_table(results: dict) -> str:
         "|-----------|--------|----------|----------|-------|",
     ]
 
-    # Framework display names
-    display_names = {
+
+def _get_framework_display_names() -> dict[str, str]:
+    """Get mapping of framework names to display names."""
+    return {
         "geopandas": "GeoPandas",
         "dask_geopandas": "Dask-GeoPandas",
         "duckdb": "DuckDB",
@@ -82,43 +103,42 @@ def create_results_table(results: dict) -> str:
         "sedona_pyspark": "Apache Sedona (PySpark)",
     }
 
-    for name, run_data in runs.items():
-        display_name = display_names.get(name, name)
-        status = run_data.get("status", "unknown")
-        duration = format_duration(run_data.get("duration_sec"))
-        memory = format_memory(run_data.get("peak_memory_mb"))
 
-        if status == "ok":
-            status_icon = "✅"
-            # Add performance context for successful runs
-            if name == "geopandas":
-                notes = "Baseline performance"
-            elif name == "dask_geopandas":
-                # Calculate actual performance vs geopandas
-                gp_time = runs.get("geopandas", {}).get("duration_sec")
-                if gp_time and run_data.get("duration_sec"):
-                    speedup = (gp_time - run_data["duration_sec"]) / gp_time * 100
-                    notes = f"~{speedup:.0f}% faster than GeoPandas" if speedup > 0 else "Slower than GeoPandas"
-                else:
-                    notes = "Fast performance"
-            elif name == "duckdb":
-                notes = "Lowest memory usage"
-            else:
-                notes = ""
-        elif status == "error":
-            status_icon = "❌"
-            exit_code = run_data.get("exit_code", "?")
-            notes = f"Exit code: {exit_code}"
-        elif status == "missing":
-            status_icon = "⚠️"
-            notes = "Script not found"
-        else:
-            status_icon = "❓"
-            notes = f"Status: {status}"
+def _get_status_and_notes(status: str, name: str, run_data: dict, runs: dict) -> tuple[str, str]:
+    """Get status icon and notes for a benchmark run."""
+    if status == "ok":
+        return _get_success_status_and_notes(name, run_data, runs)
+    if status == "error":
+        exit_code = run_data.get("exit_code", "?")
+        return "❌", f"Exit code: {exit_code}"
+    if status == "missing":
+        return "⚠️", "Script not found"
+    return "❓", f"Status: {status}"
 
-        lines.append(f"| {display_name} | {status_icon} | {duration} | {memory} | {notes} |")
 
-    return "\n".join(lines)
+def _get_success_status_and_notes(name: str, run_data: dict, runs: dict) -> tuple[str, str]:
+    """Get status icon and notes for successful runs."""
+    status_icon = "✅"
+
+    if name == "geopandas":
+        notes = "Baseline performance"
+    elif name == "dask_geopandas":
+        notes = _get_dask_performance_notes(run_data, runs)
+    elif name == "duckdb":
+        notes = "Lowest memory usage"
+    else:
+        notes = ""
+
+    return status_icon, notes
+
+
+def _get_dask_performance_notes(run_data: dict, runs: dict) -> str:
+    """Get performance notes for Dask-GeoPandas compared to GeoPandas."""
+    gp_time = runs.get("geopandas", {}).get("duration_sec")
+    if gp_time and run_data.get("duration_sec"):
+        speedup = (gp_time - run_data["duration_sec"]) / gp_time * 100
+        return f"~{speedup:.0f}% faster than GeoPandas" if speedup > 0 else "Slower than GeoPandas"
+    return "Fast performance"
 
 
 def update_readme() -> bool:

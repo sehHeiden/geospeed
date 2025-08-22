@@ -13,6 +13,7 @@ except ImportError:
     # Handle when run as standalone script
     import sys
     from pathlib import Path
+
     sys.path.insert(0, str(Path(__file__).parent.parent))
     from geospeed.utils import get_data_dir
 
@@ -51,6 +52,6 @@ for directory in data_dir.iterdir():
 buildings_with_parcels_gdf = gpd.GeoDataFrame(pd.concat(buildings_with_parcels))
 
 start_saving = time.time()
-buildings_with_parcels_gdf.to_parquet("buildings_with_parcels.geoparquet")
+buildings_with_parcels_gdf.to_parquet(Path("buildings_with_parcels.geoparquet"))
 print(f"Geopandas: Saving takes: {(time.time() - start_saving):.2f} s.")
 print(f"Geopandas: Total duration: {(time.time() - start):.2f} s.")

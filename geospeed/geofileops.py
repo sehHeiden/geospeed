@@ -21,6 +21,7 @@ except ImportError:
     # Handle when run as standalone script
     import sys
     from pathlib import Path
+
     sys.path.insert(0, str(Path(__file__).parent.parent))
     from geospeed.utils import get_data_dir
 
@@ -54,7 +55,7 @@ if __name__ == "__main__":
     except FileNotFoundError:
         print("No ALKIS data found - skipping geofileops benchmark")
         sys.exit(0)
-        
+
     buildings_paths = list(alkis_dir.glob("*/GebauedeBauwerk.shp"))
     parcels_paths = list(alkis_dir.glob("*/NutzungFlurstueck.shp"))
 
