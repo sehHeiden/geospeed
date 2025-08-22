@@ -1,6 +1,8 @@
 """Test the speed of intersection with geofileops."""
 
 import logging
+import shutil
+import subprocess
 import sys
 import time
 import warnings
@@ -82,64 +84,107 @@ if __name__ == "__main__":
     buildings_paths = list(alkis_dir.glob("*/GebauedeBauwerk.shp"))
     parcels_paths = list(alkis_dir.glob("*/NutzungFlurstueck.shp"))
 
+    def build_gpkg(paths: list[Path], gpkg_path: Path, layer_name: str) -> None:
+        """
+        Create or append shapefiles into a single GeoPackage using ogr2ogr.
+
+        Falls back to geopandas if ogr2ogr is not available.
+        """
+        if not paths:
+            err = f"No input shapefiles for {layer_name}"
+            raise FileNotFoundError(err)
+
+        if gpkg_path.exists():
+            return
+
+        ogr2ogr = shutil.which("ogr2ogr")
+        if ogr2ogr:
+            print(f"Building {gpkg_path.name} with ogr2ogr...")
+            # First file: create
+            first = paths[0]
+            subprocess.run(  # noqa: S603
+                [
+                    ogr2ogr,
+                    "-f",
+                    "GPKG",
+                    str(gpkg_path),
+                    str(first),
+                    "-nln",
+                    layer_name,
+                    "-nlt",
+                    "PROMOTE_TO_MULTI",
+                ],
+                check=True,
+                text=True,
+            )
+            # Append remaining
+            for shp in paths[1:]:
+                subprocess.run(  # noqa: S603
+                    [
+                        ogr2ogr,
+                        "-f",
+                        "GPKG",
+                        "-append",
+                        str(gpkg_path),
+                        str(shp),
+                        "-nln",
+                        layer_name,
+                        "-nlt",
+                        "PROMOTE_TO_MULTI",
+                    ],
+                    check=True,
+                    text=True,
+                )
+            return
+
+        # Fallback: geopandas (slower, but portable)
+        print(f"ogr2ogr not found; falling back to GeoPandas to build {gpkg_path.name}...")
+        try:
+            # Import geopandas via __import__ to avoid top-level import in function scope
+            gpd = __import__("geopandas")  # type: ignore[import-not-found]
+        except Exception as e:  # pragma: no cover - defensive
+            print(f"GeoPandas not available to build {gpkg_path.name}: {e}")
+            raise
+
+        dfs = []
+        for shp in paths:
+            try:
+                df = gpd.read_file(shp)
+            except Exception as e:  # pragma: no cover - defensive
+                print(f"Failed to read {shp}: {e}")
+                raise
+            dfs.append(df)
+        if not dfs:
+            err = f"No data read for {layer_name}"
+            raise RuntimeError(err)
+        out = gpd.pd.concat(dfs, ignore_index=True)
+        out.to_file(gpkg_path, layer=layer_name, driver="GPKG")
+
     buildings_path = alkis_dir / "GebauedeBauwerk.gpkg"
     if not buildings_path.exists():
         print("Preparing buildings data...")
-        for path in buildings_paths:
-            try:
-                # Try different geofileops API functions based on version
-                # Check if gfo has a sub-module or if methods are available directly
-                gfo_api = gfo.gfo if hasattr(gfo, "gfo") else gfo
-
-                if hasattr(gfo_api, "copy_layer"):
-                    gfo_api.copy_layer(
-                        src=path,
-                        dst=buildings_path,
-                        dst_layer=buildings_path.stem,
-                        append=True,
-                        create_spatial_index=False,
-                    )
-                elif hasattr(gfo_api, "append_to"):
-                    # Alternative API in newer versions
-                    gfo_api.append_to(src=path, dst=buildings_path, dst_layer=buildings_path.stem)
-                elif hasattr(gfo_api, "copy"):
-                    # Fallback: use copy function if available
-                    gfo_api.copy(src=path, dst=buildings_path, dst_layer=buildings_path.stem)
-                else:
-                    msg = "Neither 'copy_layer', 'append_to', nor 'copy' methods are available in geofileops."
-                    _raise_geofileops_methods_error(msg)
-            except AttributeError as e:
-                _handle_attribute_error(e, gfo, gfo_api)
+        try:
+            build_gpkg(buildings_paths, buildings_path, buildings_path.stem)
+        except (OSError, RuntimeError, subprocess.CalledProcessError) as e:
+            print(f"Failed to prepare buildings data: {e}")
+            sys.exit(1)
         print("Note: Skipping spatial index creation for buildings - proceeding without index")
 
     parcels_path = alkis_dir / "NutzungFlurstueck.gpkg"
     if not parcels_path.exists():
         print("Preparing parcels data...")
-        for path in parcels_paths:
-            try:
-                # Use the same API access pattern
-                gfo_api = gfo.gfo if hasattr(gfo, "gfo") else gfo
-
-                if hasattr(gfo_api, "copy_layer"):
-                    gfo_api.copy_layer(
-                        src=path, dst=parcels_path, dst_layer=parcels_path.stem, append=True, create_spatial_index=False
-                    )
-                elif hasattr(gfo_api, "append_to"):
-                    gfo_api.append_to(src=path, dst=parcels_path, dst_layer=parcels_path.stem)
-                elif hasattr(gfo_api, "copy"):
-                    gfo_api.copy(src=path, dst=parcels_path, dst_layer=parcels_path.stem)
-                else:
-                    msg = "Neither 'copy_layer', 'append_to', nor 'copy' methods are available in geofileops."
-                    _raise_geofileops_methods_error(msg)
-            except AttributeError as e:
-                _handle_attribute_error(e, gfo, gfo_api)
+        try:
+            build_gpkg(parcels_paths, parcels_path, parcels_path.stem)
+        except (OSError, RuntimeError, subprocess.CalledProcessError) as e:
+            print(f"Failed to prepare parcels data: {e}")
+            sys.exit(1)
         print("Note: Skipping spatial index creation for parcels - proceeding without index")
 
     print(f"geofileops: Prepare data duration: {(time.time() - start):.0f} s.")
 
     start_intersection = time.time()
     buildings_with_parcels_path = alkis_dir / "buildings_with_parcels.gpkg"
-    # Use the same API access pattern for intersection
+    # Use geofileops for intersection
     gfo_api = gfo.gfo if hasattr(gfo, "gfo") else gfo
     gfo_api.intersection(
         buildings_path,

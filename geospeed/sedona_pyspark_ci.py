@@ -7,12 +7,14 @@ import shutil
 import subprocess
 import sys
 import time
+from importlib import metadata
 from pathlib import Path
 
 # Add timing
 start_time = time.time()
 
 try:
+    import pyspark
     from pyspark.sql import SparkSession
     from pyspark.sql.functions import col
     from sedona.spark import SedonaContext
@@ -114,13 +116,27 @@ else:
             print("JAVA_HOME not set and no Java installation found")
             sys.exit(1)
 
+# Build Sedona/Geotools package coordinates based on installed versions
+scala_suffix = "2.12"
+pyspark_ver = getattr(pyspark, "__version__", "3.5.0")
+try:
+    sedona_ver = metadata.version("apache-sedona")
+except metadata.PackageNotFoundError:
+    sedona_ver = "1.6.1"
+
+spark_mm = ".".join(pyspark_ver.split(".")[:2])  # e.g., 3.5
+sedona_pkg = f"org.apache.sedona:sedona-spark-shaded-{spark_mm}_{scala_suffix}:{sedona_ver}"
+# Keep a known-compatible geotools wrapper version
+geotools_pkg = "org.datasyslab:geotools-wrapper:1.6.1-28.2"
+print(f"Using Spark {pyspark_ver}, Sedona {sedona_ver} -> {sedona_pkg}")
+
 # Initialize SparkSession in local mode for CI
 spark = (
     SparkSession.builder.appName("SedonaCI")
     .master("local[*]")  # Use all available cores locally
     .config(
         "spark.jars.packages",
-        "org.apache.sedona:sedona-spark-shaded-3.0_2.12:1.6.1,org.datasyslab:geotools-wrapper:1.6.1-28.2",
+        f"{sedona_pkg},{geotools_pkg}",
     )
     .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     .config("spark.kryo.registrator", "org.apache.sedona.core.serde.SedonaKryoRegistrator")
