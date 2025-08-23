@@ -27,6 +27,9 @@ dependencies = [
 [dependency-groups]
 dev = [
     "mypy",
+    "pytest>=8.4.1",
+    "pytest-cov",
+    "coverage[toml]",
     "ruff",
     "ty>=0.0.1a19",
 ]
@@ -45,14 +48,32 @@ line-length = 120
 indent-width = 4
 target-version = "py312"
 
-lint.select = ["ALL"]
-lint.ignore = ["D203", "D212", "ISC001", "COM812", "E501",
-                "T201"]
-
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["D203", "D212", "ISC001", "COM812", "E501", "T201"]
 # Allow fix for all enabled rules (when `--fix`) is provided.
-lint.fixable = ["ALL"]
-lint.unfixable = []
+fixable = ["ALL"]
+unfixable = []
+
+# Allow test-specific patterns in test files
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = [
+    "S101",    # Allow assert statements in tests
+    "PLC0415", # Allow imports inside functions in tests (for import testing)
+    "S603",    # Allow subprocess calls in tests (for integration testing)
+]
 
 [tool.mypy]
 python_version = "3.12"
 ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+addopts = "-v --tb=short --strict-markers --cov=geospeed --cov-report=term-missing --cov-report=html"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+minversion = "8.4"
+markers = [
+    "integration: marks tests as integration tests (may be slow or require external dependencies)",
+]

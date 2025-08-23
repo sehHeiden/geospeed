@@ -1,14 +1,19 @@
 # GeoSpeed 🚀
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
-[![Benchmarks](https://github.com/sehHeiden/geospeed/workflows/Benchmarks/badge.svg)](https://github.com/sehHeiden/geospeed/actions/workflows/benchmark.yml)
-[![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+[![CI/CD Pipeline](https://github.com/sehHeiden/geospeed/workflows/Benchmarks/badge.svg)](https://github.com/sehHeiden/geospeed/actions/workflows/benchmark.yml)
+[![Coverage](.github/badges/coverage.svg)](https://github.com/sehHeiden/geospeed/actions/workflows/coverage.yml)
+[![Code Quality](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Package Manager](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+[![Type Checking](https://img.shields.io/badge/type_checker-ty-blue.svg)](https://github.com/pydantic/ty)
+[![Automated Testing](https://img.shields.io/badge/testing-automated-green.svg)](#testing)
+[![Memory Profiling](https://img.shields.io/badge/profiling-psutil-orange.svg)](https://psutil.readthedocs.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> **Speed Comparison of Modern GIS Tools for Spatial Overlay Operations**
+> **Python GIS Performance Benchmarking, Updates with Automated CI/CD below**
 
-A comprehensive performance comparison of modern Python GIS frameworks including GeoPandas, Dask-GeoPandas, DuckDB Spatial, and Apache Sedona. This project benchmarks spatial overlay operations using real-world ALKIS building and parcel data from Brandenburg, Germany.
+A data-driven performance comparison of Python GIS frameworks featuring automated benchmarking, memory profiling.
+This project benchmarks spatial overlay operations using real-world ALKIS building and parcel data from Brandenburg, Germany.
 
 ## 📊 Quick Results
 
@@ -107,7 +112,7 @@ We have saved 3,620,994 polygons.
 *Expectations:* Partitioning the DataFrame should increase the number of cores used. This should reduce the computation time.
 
 *Observations:* I open the shapefiles as before with Geopandas, but then convert them to a Dask-Geopandas GeoDataFrame.
-All this increases the loading time a bit from about 60s to 76s. It's not much because I don't do the spatial partioning!
+All this increases the loading time a bit from about 60 s to 76 s. It's not much because I don't do the spatial partioning!
 
 Finally, I try the map_partitions method. On the left a Dask GeoDataFrame (the larger parcels dataset) and on the right the smaller GeoDataFrame on the right. Having the larger dataset as the Dask-GeoDataFrame increases speed.
 No, spatial swapping is not necessary as the spatial index is already used.
@@ -251,7 +256,7 @@ For Apache-Sedona we can only compare the total execution time, and this seems t
 
 If low memory usage is important, DUCKDB is an option. So either on systems with low memory or with huge amounts of data.
 To avoid using swap. Opening shapefiles with DuckDB is slower than with GeoPandas. 
-So far I cannot recommend using DuckDB for spatial tasks, as the number of supported file formats is limited, and although supported I was not able to save to GeoPackages.
+So far I cannot recommend using DuckDB for spatial tasks, as the number of supported file formats is limited, and although supported, I was not able to save to GeoPackages.
 Also, DuckDB does not support raster files. 
 
 If you already have a Spark cluster, Sedona may be a valid option. So far Dask is the fastest solution but uses a huge amount of additional memory.
@@ -265,7 +270,7 @@ Maybe one day I can recommend DuckDB instead.
 
 **Last updated**: 2025-08-23T15:42:48Z  
 **Python**: 3.12.11  
-**Dataset**: Test subset (significantly smaller than full Brandenburg dataset)
+**Dataset**: Test subset (significantly smaller than the full Brandenburg dataset)
 
 | Framework | Status | Duration | Peak RAM | Notes |
 |-----------|--------|----------|----------|-------|

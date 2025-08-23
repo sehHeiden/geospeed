@@ -1,0 +1,64 @@
+name: Tests & Coverage
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - 'geospeed/**'
+      - 'tests/**'
+      - '.github/workflows/**'
+  pull_request:
+    paths:
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - 'geospeed/**'
+      - 'tests/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+jobs:
+  coverage:
+    name: Run tests and generate coverage badge
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Sync dependencies
+        run: uv sync
+
+      - name: Run tests with coverage
+        run: |
+          uv run pytest -v --tb=short --strict-markers \
+            --cov=geospeed --cov-report=xml --cov-report=term-missing
+
+      - name: Generate coverage badge
+        uses: cicirello/coverage-badge-action@v4
+        with:
+          output-path: .github/badges/coverage.svg
+          coverage-data-file: coverage.xml
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: htmlcov
+          if-no-files-found: ignore
+
+      - name: Commit badge if it changed (master only)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "GitHub Action"
+          git add .github/badges/coverage.svg || true
+          git diff --staged --quiet || git commit -m "chore(ci): update coverage badge"
+          git push || true
+

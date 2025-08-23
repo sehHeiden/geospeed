@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Update README.md with latest benchmark results.
+Update README.md with the latest benchmark results.
 
 Looks for benchmarks/latest.json and injects a table between:
 <!-- BENCHMARK_RESULTS_START -->
@@ -28,7 +28,7 @@ MB_PER_GB = 1024
 
 
 def format_duration(duration_sec: float | None) -> str:
-    """Format duration in seconds to human readable string."""
+    """Format duration in seconds to human-readable string."""
     if duration_sec is None:
         return "N/A"
     if duration_sec < SECONDS_PER_MINUTE:
@@ -39,7 +39,7 @@ def format_duration(duration_sec: float | None) -> str:
 
 
 def format_memory(memory_mb: float | None) -> str:
-    """Format memory usage in MB to human readable string."""
+    """Format memory usage in MB to human-readable string."""
     if memory_mb is None:
         return "N/A"
     if memory_mb < MB_PER_GB:
@@ -48,7 +48,7 @@ def format_memory(memory_mb: float | None) -> str:
 
 
 def create_results_table(results: dict) -> str:
-    """Create markdown table from benchmark results."""
+    """Create a Markdown table from benchmark results."""
     if "runs" not in results or not results["runs"]:
         return (
             "**No benchmark results available**\n\n*Run benchmarks with data in ./ALKIS directory to generate results.*"
@@ -81,11 +81,11 @@ def create_results_table(results: dict) -> str:
 
 
 def _create_table_header(timestamp: str, python_version: str) -> list[str]:
-    """Create the header section of the results table."""
+    """Create the header section of the result table."""
     return [
         f"**Last updated**: {timestamp}  ",
         f"**Python**: {python_version}  ",
-        "**Dataset**: Test subset (significantly smaller than full Brandenburg dataset)",
+        "**Dataset**: Test subset (significantly smaller than the full Brandenburg dataset)",
         "",
         "| Framework | Status | Duration | Peak RAM | Notes |",
         "|-----------|--------|----------|----------|-------|",
@@ -162,7 +162,7 @@ def update_readme() -> bool:
 
 
 def _get_results() -> dict | None:
-    """Get benchmark results from file or create placeholder."""
+    """Get benchmark results from a file or create placeholder."""
     if not RESULTS_FILE.exists():
         print(f"Results file not found: {RESULTS_FILE}")
         return {"meta": {"skipped": True, "reason": "No benchmark results available yet"}, "runs": {}}
@@ -199,7 +199,7 @@ def _process_update(readme_content: str, results: dict) -> bool:
     before = readme_content[: start_idx + len(START_MARKER)]
     after = readme_content[end_idx:]
 
-    # Generate new table
+    # Generate a new table
     table = create_results_table(results)
 
     # Reconstruct README

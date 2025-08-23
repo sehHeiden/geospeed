@@ -17,6 +17,7 @@ ALKIS_TEST/
 .ruff_cache/
 **/.ipynb_checkpoints/
 __pycache__/
+.coverage
 
 # Virtual environment
 /.venv/

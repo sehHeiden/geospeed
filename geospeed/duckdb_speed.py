@@ -7,7 +7,7 @@ import duckdb
 try:
     from .utils import get_file_paths
 except ImportError:
-    # Handle when run as standalone script
+    # Handle when run as a standalone script
     import sys
     from pathlib import Path
 
