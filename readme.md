@@ -2,7 +2,7 @@
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![CI/CD Pipeline](https://github.com/sehHeiden/geospeed/workflows/Benchmarks/badge.svg)](https://github.com/sehHeiden/geospeed/actions/workflows/benchmark.yml)
-[![Coverage](.github/badges/coverage.svg)](https://github.com/sehHeiden/geospeed/actions/workflows/coverage.yml)
+[![codecov](https://codecov.io/gh/sehHeiden/geospeed/graph/badge.svg)](https://codecov.io/gh/sehHeiden/geospeed)
 [![Code Quality](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Package Manager](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![Type Checking](https://img.shields.io/badge/type_checker-ty-blue.svg)](https://github.com/pydantic/ty)
