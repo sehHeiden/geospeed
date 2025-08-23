@@ -83,7 +83,7 @@ def run_script(path: Path) -> tuple[int, float, str, float | None]:
                         rss += child.memory_info().rss
                 cur_mb = rss / (1024 * 1024)
                 peak_mem_mb = cur_mb if peak_mem_mb is None or cur_mb > peak_mem_mb else peak_mem_mb
-                time.sleep(0.2)
+                time.sleep(0.01)
         except psutil.Error:
             pass
 
