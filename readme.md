@@ -273,7 +273,7 @@ Maybe one day I can recommend DuckDB instead.
 | Dask-GeoPandas | ✅ | 7.0s | 815 MB | ~21% faster than GeoPandas |
 | DuckDB | ✅ | 8.6s | 470 MB | Lowest memory usage |
 | GeoPandas (county-wise) | ✅ | 6.9s | 592 MB |  |
-| geofileops | ❌ | 1.2s | 230 MB | Exit code: 1 |
+| geofileops | ❌ | 1.2s | 230 MB | Requires geofileops>=0.8.0 with GDAL dependencies |
 | Apache Sedona (PySpark) | ✅ | 45.1s | 1.9 GB |  |
 
 <!-- BENCHMARK_RESULTS_END -->

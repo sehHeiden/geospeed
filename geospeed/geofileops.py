@@ -53,6 +53,28 @@ def _handle_attribute_error(e: AttributeError, gfo: object, gfo_api: object) -> 
     sys.exit(1)
 
 
+def _do_intersection(gfo_api: object, input1: str, input2: str, output: str, **kwargs: object) -> None:
+    """Perform spatial intersection with robust version detection."""
+    if hasattr(gfo_api, "intersection"):
+        print("Running geofileops.intersection() ...")
+        gfo_api.intersection(input1, input2, output, **kwargs)  # type: ignore[attr-defined]
+    elif hasattr(gfo_api, "overlay"):
+        print("Running geofileops.overlay(operation='intersection') ...")
+        gfo_api.overlay(  # type: ignore[attr-defined]
+            input1=input1,
+            input2=input2,
+            out=output,
+            operation="intersection",
+            **kwargs,
+        )
+    else:
+        err = (
+            "Neither 'intersection' nor 'overlay' method available in geofileops. "
+            "Consider upgrading to geofileops>=0.8.0."
+        )
+        _raise_geofileops_methods_error(err)
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     warnings.filterwarnings("ignore")
@@ -195,28 +217,14 @@ if __name__ == "__main__":
     # Use geofileops for intersection, with version-tolerant fallback
     gfo_api = gfo.gfo if hasattr(gfo, "gfo") else gfo
     try:
-        if hasattr(gfo_api, "intersection"):
-            print("Running geofileops.intersection() ...")
-            gfo_api.intersection(
-                buildings_path,
-                parcels_path,
-                buildings_with_parcels_path,
-                input1_columns=building_cols,
-                input2_columns=parcels_cols,
-            )
-        elif hasattr(gfo_api, "overlay"):
-            print("Running geofileops.overlay(operation='intersection') ...")
-            gfo_api.overlay(
-                input1=buildings_path,
-                input2=parcels_path,
-                out=buildings_with_parcels_path,
-                operation="intersection",
-                input1_columns=building_cols,
-                input2_columns=parcels_cols,
-            )
-        else:
-            err = "Neither 'intersection' nor 'overlay' method available in geofileops"
-            _raise_geofileops_methods_error(err)
+        _do_intersection(
+            gfo_api,
+            str(buildings_path),
+            str(parcels_path),
+            str(buildings_with_parcels_path),
+            input1_columns=building_cols,
+            input2_columns=parcels_cols,
+        )
     except AttributeError as e:
         _handle_attribute_error(e, gfo, gfo_api)
     print(f"geofileops: Load, intersection, save takes: {(time.time() - start_intersection):.0f} s.")

@@ -5,7 +5,7 @@ Run the repository's benchmark scripts and collect timing results.
 - Detects presence of input data in ./ALKIS (or via DATA_DIR env).
 - Runs each benchmark script as a subprocess using the current interpreter.
 - Records wall-clock durations and exit codes in benchmarks/latest.json.
-- Skips gracefully if data directory is missing.
+- Skips gracefully if the data directory is missing.
 
 Usage:
     uv run python scripts/benchmarks.py
@@ -141,7 +141,7 @@ def main() -> int:
         # Add memory info if available
         if peak_mem_mb is not None:
             results["runs"][name]["peak_memory_mb"] = round(peak_mem_mb, 1)  # type: ignore[index]
-        # Keep short log snippet in case of failure
+        # Keep a short log snippet in case of failure
         if code != 0:
             results["runs"][name]["log_tail"] = out.splitlines()[-20:]  # type: ignore[index]
 
