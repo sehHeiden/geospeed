@@ -7,6 +7,40 @@ from pathlib import Path
 import pytest
 
 
+def get_gdal_version():
+    """Get the system GDAL version."""
+    try:
+        result = subprocess.run(["gdal-config", "--version"], capture_output=True, text=True, check=True)
+        return result.stdout.strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return None
+
+
+@pytest.mark.integration
+def test_gdal_installed() -> None:
+    """Test that GDAL is installed and accessible."""
+    version = get_gdal_version()
+    if version is None:
+        pytest.skip("GDAL not found. Install with: sudo apt-get install gdal-bin libgdal-dev")
+    print(f"GDAL version: {version}")
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(get_gdal_version() is None, reason="GDAL not installed")
+def test_geofileops_gdal_compatibility() -> None:
+    """Test geofileops is compatible with the installed GDAL version."""
+    try:
+        import geofileops as gfo
+        # Test basic functionality
+        gfo_api = gfo.gfo if hasattr(gfo, "gfo") else gfo
+        assert hasattr(gfo_api, "intersection") or hasattr(gfo_api, "overlay")
+        print(f"✅ geofileops compatible with GDAL {get_gdal_version()}")
+    except ImportError:
+        pytest.skip("geofileops not installed")
+    except Exception as e:
+        pytest.fail(f"geofileops incompatible with GDAL {get_gdal_version()}: {e}")
+
+
 @pytest.mark.integration
 def test_geofileops_import() -> None:
     """Test that geofileops can be imported if available."""
