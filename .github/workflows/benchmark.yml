@@ -61,7 +61,7 @@ jobs:
           
           # Install geofileops with compatible GDAL version
           echo "Installing geofileops with GDAL $GDAL_VERSION compatibility"
-          uv add 'geofileops>=0.8.0' "GDAL>=$GDAL_MAJOR_MINOR.0,<$(echo $GDAL_MAJOR_MINOR | awk -F. '{print $1"."($2+1)}').0" || {
+          uv add 'geofileops>=0.8.0' "GDAL>=$GDAL_MAJOR_MINOR.4,<$(echo $GDAL_MAJOR_MINOR | awk -F. '{print $1"."($2+1)}').0" || {
             echo "Failed with version range, trying exact version"
             uv add 'geofileops>=0.8.0' "GDAL==$GDAL_VERSION" || {
               echo "Could not install geofileops with compatible GDAL version"
