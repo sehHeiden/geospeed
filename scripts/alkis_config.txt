@@ -1,0 +1,13 @@
+# ALKIS Configuration - UPDATE HERE ONLY
+# Format: one item per line, comments start with #
+
+# Districts to download
+DISTRICTS=brb
+DISTRICTS=p
+
+# Layers to extract
+LAYERS=GebauedeBauwerk
+LAYERS=NutzungFlurstueck
+
+# Base URL
+BASE_URL=https://data.geobasis-bb.de/geobasis/daten/alkis/Vektordaten/shape

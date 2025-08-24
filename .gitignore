@@ -2,6 +2,10 @@
 ALKIS/
 ALKIS_TEST/
 
+# ALKIS_CI data (downloaded externally from Brandenburg government)
+/ALKIS_CI/
+!/ALKIS_CI/README.md
+
 # Output files
 *.geoparquet
 *.parquet

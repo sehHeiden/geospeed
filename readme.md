@@ -39,13 +39,20 @@ GIS technology is evolving rapidly with modern tools like Apache Arrow, improved
 
 # The data
 
-First, I downloaded the ALKIS (register) building data for [all counties in the state of Brandenburg](https://data.geobasis-bb.de/geobasis/daten/alkis/Vektordaten/shape/).
-All the vector files are open data. The vector files are still offered as shapefiles.
-From the ALKIS dataset of Brandenburg I used the buildings and the parcels (with land use).
-The files are stored per county!
-The geometries have some errors, which Geopandas automatically detects and fixes.
-In addition, some files cannot be opened with the [fiona](https://fiona.readthedocs.io/en/latest/index.html) library of Geopandas, with the error message
-of multiple geometry columns. So we always use the new default: pyogrio.
+The benchmark uses official ALKIS (register) building data from [Brandenburg state](https://data.geobasis-bb.de/geobasis/daten/alkis/Vektordaten/shape/).
+All vector files are open data provided as shapefiles by the Brandenburg government.
+From the ALKIS dataset I use buildings and parcels (with land use) for two districts: Brandenburg City and Potsdam.
+
+> **📥 Data Download**: To avoid GitHub LFS bandwidth limits, ALKIS data is downloaded directly from the official source:
+> - **Linux/macOS/WSL**: `./scripts/download_alkis_data.sh`
+> - **Windows PowerShell**: `scripts/download_alkis_data.ps1`
+> - **Configuration**: Edit `scripts/alkis_config.txt` to change districts/layers
+> - **CI/CD**: Automatically downloaded and cached
+> - **Source**: https://data.geobasis-bb.de/geobasis/daten/alkis/Vektordaten/shape/
+> - **Size**: 39M compressed → ~289M extracted
+The geometries have some errors, which GeoPandas automatically detects and fixes.
+Some files cannot be opened with the [fiona](https://fiona.readthedocs.io/en/latest/index.html) library due to
+multiple geometry columns, so we use the newer default: pyogrio.
 
 ![SansSouci park and palaces in Potsdam, the capital of Brandenburg](/graphics/sanssouci_park.png)
 
@@ -200,7 +207,7 @@ We need the warming because we use the same input data, so a GeoPandas run would
 Without warming GeoPandas, this would be even slower.
 These execution times must always be slower than the previous ones because they include loading the Python interpreter and all libraries. and all libraries.
 
-Without using arrow for input data. GeoPandas took 287.519 s ± 1.532 s to open, overlay and save.
+Without using arrow for input data. GeoPandas took 287.519 s ± 1.532 s to open, overlay, and save.
 The overall variation will be small.
 
 Opening the files with the `use_arrow` option reduces the computation time by about 8%. The execution takes: 264.590 s ± 4.891 s.

@@ -11,9 +11,7 @@ jobs:
       contents: write  # Allow pushing commits back to repo
     timeout-minutes: ${{ github.event_name == 'pull_request' && 10 || 60 }}
     steps:
-      - uses: actions/checkout@v5
-        with:
-          lfs: true
+      - uses: actions/checkout@v5  # No LFS needed anymore
       
       - name: Cache system packages
         uses: actions/cache@v4
@@ -22,6 +20,19 @@ jobs:
           key: ${{ runner.os }}-apt-${{ hashFiles('.github/workflows/benchmark.yml') }}
           restore-keys: |
             ${{ runner.os }}-apt-
+      
+      - name: Cache ALKIS_CI data
+        uses: actions/cache@v4
+        id: alkis-cache
+        with:
+          path: ALKIS_CI
+          key: alkis-ci-${{ hashFiles('scripts/alkis_config.txt') }}-${{ hashFiles('.github/workflows/benchmark.yml') }}
+          restore-keys: |
+            alkis-ci-
+      
+      - name: Download ALKIS data from Brandenburg
+        if: steps.alkis-cache.outputs.cache-hit != 'true'
+        run: ./scripts/download_alkis_data.sh
       
       - uses: astral-sh/setup-uv@v6
         with:

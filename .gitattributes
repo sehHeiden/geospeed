@@ -16,6 +16,8 @@
 # LaTeX files (for your academic work)
 *.tex linguist-detectable=true
 *.bib linguist-data=true
-*.dbf filter=lfs diff=lfs merge=lfs -text
-*.shp filter=lfs diff=lfs merge=lfs -text
-*.shx filter=lfs diff=lfs merge=lfs -text
+# ALKIS_CI data is now downloaded directly from Brandenburg government
+# See scripts/download_alkis_data.py or CI workflow
+# *.dbf filter=lfs diff=lfs merge=lfs -text
+# *.shp filter=lfs diff=lfs merge=lfs -text  
+# *.shx filter=lfs diff=lfs merge=lfs -text
