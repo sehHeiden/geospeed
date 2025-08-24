@@ -32,7 +32,9 @@ jobs:
       
       - name: Download ALKIS data from Brandenburg
         if: steps.alkis-cache.outputs.cache-hit != 'true'
-        run: ./scripts/download_alkis_data.sh
+        run: |
+          chmod +x scripts/download_alkis_data.sh
+          ./scripts/download_alkis_data.sh
       
       - uses: astral-sh/setup-uv@v6
         with:
