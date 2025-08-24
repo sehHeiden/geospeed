@@ -62,5 +62,6 @@ def test_benchmark_runner_includes_sedona() -> None:
     results_file = Path(__file__).parent.parent / "benchmarks" / "latest.json"
     if results_file.exists():
         import json
+
         results = json.loads(results_file.read_text())
         assert "sedona_pyspark" in results["runs"]

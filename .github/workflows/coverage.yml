@@ -32,6 +32,21 @@ jobs:
         with:
           enable-cache: true
 
+      - name: Cache ALKIS_CI data
+        uses: actions/cache@v4
+        id: alkis-cache
+        with:
+          path: ALKIS_CI
+          key: alkis-ci-${{ hashFiles('scripts/alkis_config.txt') }}-${{ hashFiles('.github/workflows/benchmark.yml') }}
+          restore-keys: |
+            alkis-ci-
+      
+      - name: Download ALKIS data from Brandenburg
+        if: steps.alkis-cache.outputs.cache-hit != 'true'
+        run: |
+          chmod +x scripts/download_alkis_data.sh
+          ./scripts/download_alkis_data.sh
+
       - name: Sync dependencies
         run: uv sync
       - name: Run tests with coverage

@@ -21,10 +21,7 @@ def test_geofileops_import() -> None:
         assert "SUCCESS" in result.stdout
     else:
         error_output = result.stderr.lower()
-        assert any(
-            phrase in error_output 
-            for phrase in ["no module named 'geofileops'", "modulenotfounderror"]
-        )
+        assert any(phrase in error_output for phrase in ["no module named 'geofileops'", "modulenotfounderror"])
         pytest.skip(f"geofileops not available: {result.stderr}")
 
 
@@ -61,5 +58,6 @@ def test_benchmark_runner_includes_geofileops() -> None:
     results_file = Path(__file__).parent.parent / "benchmarks" / "latest.json"
     if results_file.exists():
         import json
+
         results = json.loads(results_file.read_text())
         assert "geofileops" in results["runs"]
