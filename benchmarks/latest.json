@@ -1,39 +1,39 @@
 {
   "meta": {
-    "timestamp": "2025-08-24T13:36:42Z",
-    "python": "3.12.11",
+    "timestamp": "2025-08-27T22:34:13Z",
+    "python": "3.13.7",
     "data_dir": "ALKIS_CI"
   },
   "runs": {
     "geopandas": {
       "status": "ok",
-      "duration_sec": 10.755,
+      "duration_sec": 10.126,
       "exit_code": 0,
-      "peak_memory_mb": 572.7
+      "peak_memory_mb": 573.2
     },
     "dask_geopandas": {
       "status": "ok",
-      "duration_sec": 7.065,
+      "duration_sec": 6.46,
       "exit_code": 0,
-      "peak_memory_mb": 844.2
+      "peak_memory_mb": 851.5
     },
     "duckdb": {
       "status": "ok",
-      "duration_sec": 10.635,
+      "duration_sec": 10.116,
       "exit_code": 0,
-      "peak_memory_mb": 361.9
+      "peak_memory_mb": 359.5
     },
     "geopandas_county_wise": {
       "status": "ok",
-      "duration_sec": 9.972,
+      "duration_sec": 9.465,
       "exit_code": 0,
-      "peak_memory_mb": 525.4
+      "peak_memory_mb": 530.1
     },
     "geofileops": {
       "status": "error",
-      "duration_sec": 1.135,
+      "duration_sec": 0.793,
       "exit_code": 1,
-      "peak_memory_mb": 124.9,
+      "peak_memory_mb": 125.6,
       "log_tail": [
         "Warning: geofileops not available: No module named 'geofileops'",
         "To install geofileops, you need GDAL system dependencies.",
@@ -42,9 +42,9 @@
     },
     "sedona_pyspark": {
       "status": "error",
-      "duration_sec": 0.853,
+      "duration_sec": 0.688,
       "exit_code": 1,
-      "peak_memory_mb": 99.8,
+      "peak_memory_mb": 100.5,
       "log_tail": [
         "JAVA_HOME not set and no Java installation found"
       ]

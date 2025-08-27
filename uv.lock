@@ -1,6 +1,10 @@
 version = 1
 revision = 3
 requires-python = ">=3.13.7"
+resolution-markers = [
+    "sys_platform == 'win32'",
+    "sys_platform != 'win32'",
+]
 
 [[package]]
 name = "apache-sedona"
@@ -332,26 +336,26 @@ wheels = [
 
 [[package]]
 name = "gdal"
-version = "3.8.4"
+version = "3.9.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/21/6f/7f76d6ff3673fa18e9edd8d76679968d682f937cded93311f82fa172697f/GDAL-3.8.4.tar.gz", hash = "sha256:7c51e0ae7a7ccf43ad9e4bf435176baa9276653dfa16fd167c3632f6e7275207", size = 802459, upload-time = "2024-02-18T15:35:29.047Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6a/45/ab2b3012a796a13844dd21742594e04d85059b6ac9fc223ebfc005a2e116/GDAL-3.9.0.tar.gz", hash = "sha256:7c2a857cf903b9921357e0dfae593f2fe6f7dcd2ea42600577d5fc3c864fb066", size = 839919, upload-time = "2024-05-10T13:53:55.55Z" }
 
 [[package]]
 name = "geofileops"
 version = "0.10.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cloudpickle" },
-    { name = "gdal" },
-    { name = "geopandas" },
-    { name = "numpy" },
-    { name = "packaging" },
-    { name = "pandas" },
-    { name = "psutil" },
-    { name = "pygeoops" },
-    { name = "pyogrio" },
-    { name = "pyproj" },
-    { name = "shapely" },
+    { name = "cloudpickle", marker = "sys_platform != 'win32'" },
+    { name = "gdal", marker = "sys_platform != 'win32'" },
+    { name = "geopandas", marker = "sys_platform != 'win32'" },
+    { name = "numpy", marker = "sys_platform != 'win32'" },
+    { name = "packaging", marker = "sys_platform != 'win32'" },
+    { name = "pandas", marker = "sys_platform != 'win32'" },
+    { name = "psutil", marker = "sys_platform != 'win32'" },
+    { name = "pygeoops", marker = "sys_platform != 'win32'" },
+    { name = "pyogrio", marker = "sys_platform != 'win32'" },
+    { name = "pyproj", marker = "sys_platform != 'win32'" },
+    { name = "shapely", marker = "sys_platform != 'win32'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/36/65/e37eaceca67715670822413b91a2a95981dfff81f71280af83e5d6768cb4/geofileops-0.10.2.tar.gz", hash = "sha256:08e69269fc848d612a369bd8a5c07a167130d11503b2ee92f445b1cfa4816448", size = 147256, upload-time = "2025-08-20T10:12:49.499Z" }
 wheels = [
@@ -384,8 +388,6 @@ dependencies = [
     { name = "dask-geopandas" },
     { name = "duckdb" },
     { name = "fiona" },
-    { name = "gdal" },
-    { name = "geofileops" },
     { name = "geopandas" },
     { name = "matplotlib" },
     { name = "memory-profiler" },
@@ -404,6 +406,9 @@ dev = [
     { name = "ruff" },
     { name = "ty" },
 ]
+geofileops = [
+    { name = "geofileops", marker = "sys_platform != 'win32'" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -411,8 +416,6 @@ requires-dist = [
     { name = "dask-geopandas" },
     { name = "duckdb", specifier = "~=1.3.2" },
     { name = "fiona", specifier = "==1.10.1" },
-    { name = "gdal", specifier = "==3.8.4" },
-    { name = "geofileops", specifier = ">=0.10.0" },
     { name = "geopandas", specifier = "==1.1.1" },
     { name = "matplotlib" },
     { name = "memory-profiler" },
@@ -431,6 +434,7 @@ dev = [
     { name = "ruff" },
     { name = "ty", specifier = ">=0.0.1a19" },
 ]
+geofileops = [{ name = "geofileops", marker = "sys_platform != 'win32'", specifier = ">=0.10.0" }]
 
 [[package]]
 name = "iniconfig"
@@ -828,11 +832,11 @@ name = "pygeoops"
 version = "0.5.0.post1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "geopandas" },
-    { name = "numpy" },
-    { name = "pyproj" },
-    { name = "shapely" },
-    { name = "topojson" },
+    { name = "geopandas", marker = "sys_platform != 'win32'" },
+    { name = "numpy", marker = "sys_platform != 'win32'" },
+    { name = "pyproj", marker = "sys_platform != 'win32'" },
+    { name = "shapely", marker = "sys_platform != 'win32'" },
+    { name = "topojson", marker = "sys_platform != 'win32'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/33/fa/fb170ce35bd70914aaaf3e64522614b11731cfef421eed980e6796d4f004/pygeoops-0.5.0.post1.tar.gz", hash = "sha256:5ca23c5c45c8ca21511c81720b2a5b57328c554f17d807099f41c0b1c21a7aa5", size = 49860, upload-time = "2025-03-31T04:26:25.939Z" }
 wheels = [
@@ -1076,9 +1080,9 @@ name = "topojson"
 version = "1.10"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy" },
-    { name = "packaging" },
-    { name = "shapely" },
+    { name = "numpy", marker = "sys_platform != 'win32'" },
+    { name = "packaging", marker = "sys_platform != 'win32'" },
+    { name = "shapely", marker = "sys_platform != 'win32'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/79/f3/74330050d8f7e05e140e6043302f71524e159f9a83bbee9681c86282f8fd/topojson-1.10.tar.gz", hash = "sha256:a7f53406324061a0310bec46740a6609147c24daeb354596c68345b9527b38c1", size = 25444042, upload-time = "2025-07-22T20:27:31.638Z" }
 wheels = [

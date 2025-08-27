@@ -10,11 +10,21 @@ import pytest
 
 def get_gdal_version() -> str | None:
     """Get the system GDAL version."""
+    # Try gdal-config first (Unix/Linux)
     gdal_config_path = shutil.which("gdal-config")
-    if gdal_config_path is None:
-        return None
+    if gdal_config_path is not None:
+        try:
+            result = subprocess.run([gdal_config_path, "--version"], capture_output=True, text=True, check=True)
+            return result.stdout.strip()
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            pass
+    
+    # Try Python GDAL import (works on all platforms)
     try:
-        result = subprocess.run([gdal_config_path, "--version"], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            [sys.executable, "-c", "from osgeo import gdal; print(gdal.VersionInfo('RELEASE_NAME'))"],
+            capture_output=True, text=True, check=True
+        )
         return result.stdout.strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
         return None
