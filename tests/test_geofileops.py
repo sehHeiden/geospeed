@@ -1,5 +1,6 @@
 """Simplified tests for geofileops benchmark functionality."""
 
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -7,10 +8,13 @@ from pathlib import Path
 import pytest
 
 
-def get_gdal_version():
+def get_gdal_version() -> str | None:
     """Get the system GDAL version."""
+    gdal_config_path = shutil.which("gdal-config")
+    if gdal_config_path is None:
+        return None
     try:
-        result = subprocess.run(["gdal-config", "--version"], capture_output=True, text=True, check=True)
+        result = subprocess.run([gdal_config_path, "--version"], capture_output=True, text=True, check=True)
         return result.stdout.strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
         return None
@@ -31,13 +35,14 @@ def test_geofileops_gdal_compatibility() -> None:
     """Test geofileops is compatible with the installed GDAL version."""
     try:
         import geofileops as gfo
+
         # Test basic functionality
         gfo_api = gfo.gfo if hasattr(gfo, "gfo") else gfo
         assert hasattr(gfo_api, "intersection") or hasattr(gfo_api, "overlay")
         print(f"✅ geofileops compatible with GDAL {get_gdal_version()}")
     except ImportError:
         pytest.skip("geofileops not installed")
-    except Exception as e:
+    except (AttributeError, RuntimeError, OSError) as e:
         pytest.fail(f"geofileops incompatible with GDAL {get_gdal_version()}: {e}")
 
 

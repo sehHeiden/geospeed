@@ -42,6 +42,7 @@ jobs:
       
       - name: Install GDAL and Java
         run: |
+          sudo add-apt-repository ppa:ubuntugis/ppa -y
           sudo apt-get update -qq
           sudo apt-get install -y gdal-bin libgdal-dev openjdk-11-jdk
           echo "Installed GDAL version: $(gdal-config --version)"
@@ -62,29 +63,11 @@ jobs:
       - name: Sync dependencies and setup test directories
         run: uv sync && mkdir -p ALKIS_TEST/test_county
       
-      - name: Install geofileops for benchmarking
-        run: |
-          # Check system GDAL version
-          GDAL_VERSION=$(gdal-config --version)
-          echo "System GDAL version: $GDAL_VERSION"
-          
-          # Extract major.minor version for compatibility
-          GDAL_MAJOR_MINOR=$(echo $GDAL_VERSION | cut -d. -f1-2)
-          echo "GDAL major.minor: $GDAL_MAJOR_MINOR"
-          
-          # Install geofileops with compatible GDAL version
-          echo "Installing geofileops with GDAL $GDAL_VERSION compatibility"
-          uv add 'geofileops>=0.8.0' "GDAL>=$GDAL_MAJOR_MINOR.4,<$(echo $GDAL_MAJOR_MINOR | awk -F. '{print $1"."($2+1)}').0" || {
-            echo "Failed with version range, trying exact version"
-            uv add 'geofileops>=0.8.0' "GDAL==$GDAL_VERSION" || {
-              echo "Could not install geofileops with compatible GDAL version"
-              echo "Skipping geofileops benchmark in this run"
-            }
-          }
+      # geofileops is now included in main dependencies - no need for separate installation
       - name: Run benchmarks or smoke test
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            uv run python -c "import geopandas, pyogrio, duckdb; print('✅ OK')"
+            uv run python -c "import geopandas, pyogrio, duckdb, geofileops; print('✅ OK')"
           else
             timeout 3600 uv run python scripts/benchmarks.py
             uv run python scripts/update_readme.py
