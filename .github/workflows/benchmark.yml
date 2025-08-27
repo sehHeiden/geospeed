@@ -36,27 +36,13 @@ jobs:
           chmod +x scripts/download_alkis_data.sh
           ./scripts/download_alkis_data.sh
       
-      - name: Install GDAL and Java (via micromamba + Ubuntu Java)
+      - name: Install GDAL and Java (Ubuntu default)
         run: |
-          # Install Java from Ubuntu (fast and reliable)
+          # Install system packages (now with constrained Python GDAL version)
           sudo apt-get update -qq
-          sudo apt-get install -y openjdk-11-jdk curl
-          
-          # Install micromamba and use it for latest GDAL
-          curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
-          sudo mv bin/micromamba /usr/local/bin/
-          
-          # Create environment with latest GDAL from conda-forge
-          micromamba create -n gdal-env -c conda-forge gdal libgdal-dev -y
-          eval "$(micromamba shell hook --shell bash)"
-          micromamba activate gdal-env
-          
-          # Make GDAL available system-wide
-          sudo ln -sf $(which gdal-config) /usr/local/bin/gdal-config
-          sudo ln -sf $(which gdalinfo) /usr/local/bin/gdalinfo
-          
-          echo "GDAL version: $(gdal-config --version)"
-          echo "✅ Latest GDAL installed via micromamba"
+          sudo apt-get install -y gdal-bin libgdal-dev openjdk-11-jdk
+          echo "System GDAL version: $(gdal-config --version)"
+          echo "✅ GDAL $(gdal-config --version) installed - Python GDAL constrained to 3.8.x"
       
       - uses: astral-sh/setup-uv@v6
         with:
