@@ -135,7 +135,7 @@ The repository includes a GitHub Actions workflow (`.github/workflows/benchmark.
 - Runs benchmarks automatically on push to main/master branches
 - Schedules monthly benchmark runs (first day of each month at 03:00 UTC)
 - Can be triggered manually via workflow_dispatch
-- Installs system GDAL dependencies for geofileops
+- Uses Nix to install the latest GDAL and Java dependencies
 - Updates the README with latest results automatically
 
 ### Scripts

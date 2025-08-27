@@ -36,16 +36,20 @@ jobs:
           chmod +x scripts/download_alkis_data.sh
           ./scripts/download_alkis_data.sh
       
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Install GDAL and Java via Nix
+        run: |
+          nix profile install nixpkgs#gdal nixpkgs#openjdk11
+          echo "Installed GDAL version: $(gdal-config --version)"
+          echo "GDAL Python bindings: $(python -c 'from osgeo import gdal; print(gdal.VersionInfo())' || echo 'Python GDAL bindings not available')"
+      
       - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
-      
-      - name: Install GDAL and Java
-        run: |
-          sudo add-apt-repository ppa:ubuntugis/ppa -y
-          sudo apt-get update -qq
-          sudo apt-get install -y gdal-bin libgdal-dev openjdk-11-jdk
-          echo "Installed GDAL version: $(gdal-config --version)"
       
       - name: Set JAVA_HOME and check system specs
         run: |
