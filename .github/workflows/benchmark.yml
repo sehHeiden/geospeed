@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  benchmark:
     runs-on: ubuntu-latest
     permissions:
       contents: write  # Allow pushing commits back to repo
