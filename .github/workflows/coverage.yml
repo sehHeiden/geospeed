@@ -27,11 +27,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Install Nix
-        uses: cachix/install-nix-action@v27
-        with:
-          github_access_token: ${{ secrets.GITHUB_TOKEN }}
-      
       - name: Setup uv
         uses: astral-sh/setup-uv@v6
         with:
@@ -52,11 +47,11 @@ jobs:
           chmod +x scripts/download_alkis_data.sh
           ./scripts/download_alkis_data.sh
       
-      - name: Install GDAL via Nix
+      - name: Install GDAL (Ubuntu default)
         run: |
-          nix profile install nixpkgs#gdal
+          sudo apt-get update -qq
+          sudo apt-get install -y gdal-bin libgdal-dev
           echo "Installed GDAL version: $(gdal-config --version)"
-          echo "GDAL Python bindings: $(python -c 'from osgeo import gdal; print(gdal.VersionInfo())' 2>/dev/null || echo 'Python GDAL bindings not available')"
 
       - name: Sync dependencies
         run: uv sync

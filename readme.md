@@ -47,7 +47,7 @@ From the ALKIS dataset I use buildings and parcels (with land use) for two distr
 > - **Linux/macOS/WSL**: `./scripts/download_alkis_data.sh`
 > - **Windows PowerShell**: `scripts/download_alkis_data.ps1`
 > - **Configuration**: Edit `scripts/alkis_config.txt` to change districts/layers
-> - **CI/CD**: Automatically downloaded and cached, uses Nix for latest GDAL
+> - **CI/CD**: Automatically downloaded and cached, uses Ubuntu GDAL + micromamba
 > - **Source**: https://data.geobasis-bb.de/geobasis/daten/alkis/Vektordaten/shape/
 > - **Size**: 39M compressed → ~289M extracted
 The geometries have some errors, which GeoPandas automatically detects and fixes.
