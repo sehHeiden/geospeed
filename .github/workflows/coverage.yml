@@ -47,11 +47,24 @@ jobs:
           chmod +x scripts/download_alkis_data.sh
           ./scripts/download_alkis_data.sh
       
-      - name: Install GDAL (Ubuntu default)
+      - name: Install GDAL (via micromamba)
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y gdal-bin libgdal-dev
+          # Install micromamba for latest GDAL from conda-forge
+          curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
+          sudo mv bin/micromamba /usr/local/bin/
+          
+          # Create and activate environment with latest GDAL
+          micromamba create -n gdal-env -c conda-forge gdal libgdal-dev -y
+          eval "$(micromamba shell hook --shell bash)"
+          micromamba activate gdal-env
+          
+          # Make GDAL available system-wide
+          sudo ln -sf $(which gdal-config) /usr/local/bin/gdal-config
+          sudo ln -sf $(which gdalinfo) /usr/local/bin/gdalinfo
+          
           echo "Installed GDAL version: $(gdal-config --version)"
+          echo "GDAL_DATA=$(gdal-config --datadir)" >> $GITHUB_ENV
+          echo "PATH=$(dirname $(which gdal-config)):$PATH" >> $GITHUB_ENV
 
       - name: Sync dependencies
         run: uv sync
