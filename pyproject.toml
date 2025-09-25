@@ -68,6 +68,9 @@ unfixable = []
     "S603",    # Allow subprocess calls in tests (for integration testing)
 ]
 
+[tool.uv]
+no-binary-package = ["pyogrio"]  # pyogrio with binaries installs an extra GDAL without mod_spatialite
+
 [tool.mypy]
 python_version = "3.12"
 ignore_missing_imports = true
