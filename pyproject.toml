@@ -21,7 +21,7 @@ dependencies = [
     "duckdb~=1.3.2",
     "pyspark==3.5.6",
     "apache-sedona[spark]==1.7.2",
-    "geofileops>=0.10.1",
+    "geofileops>=0.10.2",
 ]
 
 [dependency-groups]
@@ -32,11 +32,6 @@ dev = [
     "coverage[toml]",
     "ruff",
     "ty>=0.0.1a19",
-]
-geofileops = [
-    "geofileops>=0.10.1; sys_platform != 'win32'",  # Unix/macOS only
-    # Windows: Use conda-forge for GDAL compatibility
-    # conda install -c conda-forge gdal geofileops
 ]
 
 [tool.ruff]
