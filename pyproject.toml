@@ -33,7 +33,7 @@ dev = [
     "ty>=0.0.1a19",
 ]
 geofileops = [
-    "geofileops>=0.10.0; sys_platform != 'win32'",  # Unix/macOS only
+    "geofileops>=0.10.1; sys_platform != 'win32'",  # Unix/macOS only
     # Windows: Use conda-forge for GDAL compatibility
     # conda install -c conda-forge gdal geofileops
 ]
