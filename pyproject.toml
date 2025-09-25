@@ -69,7 +69,9 @@ unfixable = []
 ]
 
 [tool.uv]
-no-binary-package = ["pyogrio"]  # pyogrio with binaries installs an extra GDAL without mod_spatialite
+# If pyogrio is installed with binaries, it installs an extra GDAL that does not include
+# mod_spatialite which breaks geofileops.
+no-binary-package = ["pyogrio"]
 
 [tool.mypy]
 python_version = "3.12"
