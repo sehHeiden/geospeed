@@ -44,7 +44,7 @@ jobs:
           echo "System GDAL version: $(gdal-config --version)"
           echo "✅ GDAL $(gdal-config --version) installed - Python GDAL constrained to 3.8.x"
       
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
       
