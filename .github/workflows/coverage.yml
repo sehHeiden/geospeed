@@ -47,11 +47,11 @@ jobs:
           chmod +x scripts/download_alkis_data.sh
           ./scripts/download_alkis_data.sh
       
-      - name: Install GDAL and Java (Ubuntu default)
+      - name: Install GDAL, Java and spatialite (Ubuntu default)
         run: |
           # Install system packages (now with constrained Python GDAL version)
           sudo apt-get update -qq
-          sudo apt-get install -y gdal-bin libgdal-dev openjdk-11-jdk
+          sudo apt-get install -y gdal-bin libgdal-dev openjdk-11-jdk libsqlite3-mod-spatialite
           echo "System GDAL version: $(gdal-config --version)"
           echo "✅ GDAL $(gdal-config --version) installed - Python GDAL constrained to 3.8.x"
 

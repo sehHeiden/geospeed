@@ -21,6 +21,7 @@ dependencies = [
     "duckdb~=1.4.2",
     "pyspark==3.5.7",
     "apache-sedona[spark]==1.7.2",
+    "geofileops>=0.10.2",
 ]
 
 [dependency-groups]
@@ -31,11 +32,6 @@ dev = [
     "coverage[toml]",
     "ruff",
     "ty>=0.0.1a19",
-]
-geofileops = [
-    "geofileops>=0.10.0; sys_platform != 'win32'",  # Unix/macOS only
-    # Windows: Use conda-forge for GDAL compatibility
-    # conda install -c conda-forge gdal geofileops
 ]
 
 [tool.ruff]
@@ -66,6 +62,11 @@ unfixable = []
     "PLC0415", # Allow imports inside functions in tests (for import testing)
     "S603",    # Allow subprocess calls in tests (for integration testing)
 ]
+
+[tool.uv]
+# If pyogrio is installed with binaries, it installs an extra GDAL that does not include
+# mod_spatialite which breaks geofileops.
+no-binary-package = ["pyogrio"]
 
 [tool.mypy]
 python_version = "3.12"
