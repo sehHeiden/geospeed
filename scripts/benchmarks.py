@@ -147,6 +147,7 @@ def main() -> int:
 
     RESULTS_FILE.write_text(json.dumps(results, indent=2))
     print(f"Wrote results to {RESULTS_FILE}")
+    print(json.dumps(results, indent=2))  # CI log output
     # Return 0 even on errors so CI can still update README
     return 0
 
