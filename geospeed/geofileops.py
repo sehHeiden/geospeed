@@ -199,6 +199,8 @@ if __name__ == "__main__":
             print(f"Failed to prepare buildings data: {e}")
             sys.exit(1)
         print("Note: Skipping spatial index creation for buildings - proceeding without index")
+    else:
+        print(f"Buildings data already prepared at {buildings_path}")
 
     parcels_path = alkis_dir / "NutzungFlurstueck.gpkg"
     if not parcels_path.exists():
@@ -209,14 +211,17 @@ if __name__ == "__main__":
             print(f"Failed to prepare parcels data: {e}")
             sys.exit(1)
         print("Note: Skipping spatial index creation for parcels - proceeding without index")
+    else:
+        print(f"Parcels data already prepared at {parcels_path}")
 
-    print(f"geofileops: Prepare data duration: {(time.time() - start):.0f} s.")
+    print(f"geofileops: Prepare data duration: {(time.time() - start):.2f} s.")
 
     start_intersection = time.time()
     buildings_with_parcels_path = alkis_dir / "buildings_with_parcels.gpkg"
     # Use geofileops for intersection, with version-tolerant fallback
     gfo_api = gfo.gfo if hasattr(gfo, "gfo") else gfo
     try:
+        # Use force=True to overwrite existing output if it exists
         _do_intersection(
             gfo_api,
             str(buildings_path),
@@ -224,9 +229,10 @@ if __name__ == "__main__":
             str(buildings_with_parcels_path),
             input1_columns=building_cols,
             input2_columns=parcels_cols,
+            force=True,
         )
     except AttributeError as e:
         _handle_attribute_error(e, gfo, gfo_api)
-    print(f"geofileops: Load, intersection, save takes: {(time.time() - start_intersection):.0f} s.")
+    print(f"geofileops: Load, intersection, save takes: {(time.time() - start_intersection):.2f} s.")
 
-    print(f"geofileops: Total duration: {(time.time() - start):.0f} s.")
+    print(f"geofileops: Total duration: {(time.time() - start):.2f} s.")

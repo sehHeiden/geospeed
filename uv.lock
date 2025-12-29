@@ -338,28 +338,29 @@ wheels = [
 name = "gdal"
 version = "3.8.4"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/6a/45/ab2b3012a796a13844dd21742594e04d85059b6ac9fc223ebfc005a2e116/GDAL-3.9.0.tar.gz", hash = "sha256:7c2a857cf903b9921357e0dfae593f2fe6f7dcd2ea42600577d5fc3c864fb066", size = 839919, upload-time = "2024-05-10T13:53:55.55Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/21/6f/7f76d6ff3673fa18e9edd8d76679968d682f937cded93311f82fa172697f/GDAL-3.8.4.tar.gz", hash = "sha256:7c51e0ae7a7ccf43ad9e4bf435176baa9276653dfa16fd167c3632f6e7275207", size = 802459, upload-time = "2024-02-18T15:35:29.047Z" }
 
 [[package]]
 name = "geofileops"
-version = "0.10.2"
+version = "0.11.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cloudpickle", marker = "sys_platform != 'win32'" },
-    { name = "gdal", marker = "sys_platform != 'win32'" },
-    { name = "geopandas", marker = "sys_platform != 'win32'" },
-    { name = "numpy", marker = "sys_platform != 'win32'" },
-    { name = "packaging", marker = "sys_platform != 'win32'" },
-    { name = "pandas", marker = "sys_platform != 'win32'" },
-    { name = "psutil", marker = "sys_platform != 'win32'" },
-    { name = "pygeoops", marker = "sys_platform != 'win32'" },
-    { name = "pyogrio", marker = "sys_platform != 'win32'" },
-    { name = "pyproj", marker = "sys_platform != 'win32'" },
-    { name = "shapely", marker = "sys_platform != 'win32'" },
+    { name = "cloudpickle" },
+    { name = "gdal" },
+    { name = "geopandas" },
+    { name = "numpy" },
+    { name = "packaging" },
+    { name = "pandas" },
+    { name = "psutil" },
+    { name = "pyarrow" },
+    { name = "pygeoops" },
+    { name = "pyogrio" },
+    { name = "pyproj" },
+    { name = "shapely" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/36/65/e37eaceca67715670822413b91a2a95981dfff81f71280af83e5d6768cb4/geofileops-0.10.2.tar.gz", hash = "sha256:08e69269fc848d612a369bd8a5c07a167130d11503b2ee92f445b1cfa4816448", size = 147256, upload-time = "2025-08-20T10:12:49.499Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ee/cd/2a46d68d9e9926959ab734d874e6f6399f9472d2b5395497afc217ea83be/geofileops-0.11.0.tar.gz", hash = "sha256:2b83e0133119015886968aff8d8ee3480a1d2b60216d0ed27c7df4e193bcb34c", size = 180984, upload-time = "2025-12-10T10:32:54.098Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b4/0a/1d27b7813e70afca1717836b11afd219277f05c7732eb4dfaab66ba0a6c7/geofileops-0.10.2-py3-none-any.whl", hash = "sha256:39c5a8a1f1dc5f12d5d3619ed7c50a7bb9528b6e418a18287c656847c4812a81", size = 155933, upload-time = "2025-08-20T10:12:48.039Z" },
+    { url = "https://files.pythonhosted.org/packages/5d/32/487622282ebb3add9d6bd545ad2c3324ac3b3cbe57377019a7f48b722e09/geofileops-0.11.0-py3-none-any.whl", hash = "sha256:14f43e8e992fe73219fd1f5442cc1bd349cd6554bc708d7a7a609436bb036f3a", size = 191471, upload-time = "2025-12-10T10:32:53.054Z" },
 ]
 
 [[package]]
