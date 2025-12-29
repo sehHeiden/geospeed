@@ -229,7 +229,7 @@ if __name__ == "__main__":
             input1_columns=building_cols,
             input2_columns=parcels_cols,
             force=True,
-            batchsize=24650,
+            nb_parallel=4,
         )
     except AttributeError as e:
         _handle_attribute_error(e, gfo, gfo_api)
