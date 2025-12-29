@@ -336,7 +336,7 @@ wheels = [
 
 [[package]]
 name = "gdal"
-version = "3.9.0"
+version = "3.8.4"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/6a/45/ab2b3012a796a13844dd21742594e04d85059b6ac9fc223ebfc005a2e116/GDAL-3.9.0.tar.gz", hash = "sha256:7c2a857cf903b9921357e0dfae593f2fe6f7dcd2ea42600577d5fc3c864fb066", size = 839919, upload-time = "2024-05-10T13:53:55.55Z" }
 
