@@ -57,7 +57,7 @@ def _do_intersection(gfo_api: object, input1: str, input2: str, output: str, **k
     """Perform spatial intersection with robust version detection."""
     if hasattr(gfo_api, "intersection"):
         print("Running geofileops.intersection() ...")
-        gfo_api.intersection(input1, input2, output, force=True, **kwargs)  # type: ignore[attr-defined]
+        gfo_api.intersection(input1, input2, output, **kwargs)  # type: ignore[attr-defined]
     elif hasattr(gfo_api, "overlay"):
         print("Running geofileops.overlay(operation='intersection') ...")
         gfo_api.overlay(  # type: ignore[attr-defined]
@@ -228,6 +228,8 @@ if __name__ == "__main__":
             str(buildings_with_parcels_path),
             input1_columns=building_cols,
             input2_columns=parcels_cols,
+            force=True,
+            batchsize=24650,
         )
     except AttributeError as e:
         _handle_attribute_error(e, gfo, gfo_api)
