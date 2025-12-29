@@ -342,7 +342,7 @@ sdist = { url = "https://files.pythonhosted.org/packages/6a/45/ab2b3012a796a1384
 
 [[package]]
 name = "geofileops"
-version = "0.10.2"
+version = "0.11.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cloudpickle", marker = "sys_platform != 'win32'" },
