@@ -144,6 +144,8 @@ def main() -> int:
         # Keep a short log snippet in case of failure
         if code != 0:
             results["runs"][name]["log_tail"] = out.splitlines()[-20:]  # type: ignore[index]
+        if name == "geofileops":
+            results["runs"][name]["log"] = out.splitlines()
 
     RESULTS_FILE.write_text(json.dumps(results, indent=2))
     print(f"Wrote results to {RESULTS_FILE}")
