@@ -33,7 +33,7 @@ jobs:
           enable-cache: true
 
       - name: Cache ALKIS_CI data
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: alkis-cache
         with:
           path: ALKIS_CI
