@@ -10,7 +10,7 @@ description = "Speed comparison of modern GIS tools for spatial overlay operatio
 authors = [{name = "SeHe"}]
 requires-python = ">=3.13.7"
 dependencies = [
-    "geopandas==1.1.1",
+    "geopandas==1.1.2",
     "pyogrio==0.12.1", 
     "fiona==1.10.1",
     "pyarrow",
