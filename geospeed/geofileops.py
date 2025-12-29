@@ -221,6 +221,7 @@ if __name__ == "__main__":
     # Use geofileops for intersection, with version-tolerant fallback
     gfo_api = gfo.gfo if hasattr(gfo, "gfo") else gfo
     try:
+        # Use force=True to overwrite existing output if it exists
         _do_intersection(
             gfo_api,
             str(buildings_path),
@@ -229,7 +230,6 @@ if __name__ == "__main__":
             input1_columns=building_cols,
             input2_columns=parcels_cols,
             force=True,
-            nb_parallel=4,
         )
     except AttributeError as e:
         _handle_attribute_error(e, gfo, gfo_api)
