@@ -100,13 +100,13 @@ def run_script(path: Path) -> tuple[int, float, str, float | None]:
         proc = subprocess.run([sys.executable, str(path)], check=False, capture_output=True, text=True)  # noqa: S603
     except FileNotFoundError as e:
         duration = time.perf_counter() - start
-        peak_mem_used_mb = pre_mem_free_mb - min_mem_free_mb if min_mem_free_mb is not None else None
-        return 127, duration, f"File not found: {e}", peak_mem_mb, peak_mem_used_mb
+        peak_mem_less_avail_mb = pre_mem_free_mb - min_mem_free_mb if min_mem_free_mb is not None else None
+        return 127, duration, f"File not found: {e}", peak_mem_mb, peak_mem_less_avail_mb
     else:
         duration = time.perf_counter() - start
-        peak_mem_used_mb = pre_mem_free_mb - min_mem_free_mb if min_mem_free_mb is not None else None
+        peak_mem_less_avail_mb = pre_mem_free_mb - min_mem_free_mb if min_mem_free_mb is not None else None
         output = (proc.stdout or "") + ("\n" + proc.stderr if proc.stderr else "")
-        return proc.returncode, duration, output, peak_mem_mb, peak_mem_used_mb
+        return proc.returncode, duration, output, peak_mem_mb, peak_mem_less_avail_mb
     finally:
         stop_flag = True
         if psutil is not None and t.is_alive():
@@ -139,7 +139,7 @@ def main() -> int:
                 "exit_code": 127,
             }
             continue
-        code, dur, out, peak_mem_mb, peak_mem_used_mb = run_script(path)
+        code, dur, out, peak_mem_mb, peak_mem_less_avail_mb = run_script(path)
         results["runs"][name] = {
             "status": "ok" if code == 0 else "error",
             "duration_sec": round(dur, 3),
@@ -148,8 +148,8 @@ def main() -> int:
         # Add memory info if available
         if peak_mem_mb is not None:
             results["runs"][name]["peak_memory_mb"] = round(peak_mem_mb, 1)  # type: ignore[index]
-        if peak_mem_used_mb is not None:
-            results["runs"][name]["peak_memory_used_mb"] = round(peak_mem_used_mb, 1)  # type: ignore[index]
+        if peak_mem_less_avail_mb is not None:
+            results["runs"][name]["peak_memory_less_available_mb"] = round(peak_mem_less_avail_mb, 1)  # type: ignore[index]
         # Keep a short log snippet in case of failure
         if code != 0:
             results["runs"][name]["log_tail"] = out.splitlines()[-20:]  # type: ignore[index]
