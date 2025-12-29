@@ -65,17 +65,21 @@ def run_script(path: Path) -> tuple[int, float, str, float | None]:
     """Run a benchmark script and collect timing and memory information."""
     start = time.perf_counter()
     peak_mem_mb: float | None = None
+    min_mem_free_mb: float | None = None
 
     # If psutil available, sample RSS of current process recursively
     stop_flag = False
 
     def sampler() -> None:
         nonlocal peak_mem_mb
+        nonlocal min_mem_free_mb
         if psutil is None:
             return
         try:
             this_proc = psutil.Process()
             while not stop_flag:
+                mem_free_mb = psutil.virtual_memory().available / (1024 * 1024)
+                min_mem_free_mb = mem_free_mb if min_mem_free_mb is None else min(min_mem_free_mb, mem_free_mb)
                 rss = this_proc.memory_info().rss
                 # Include children
                 for child in this_proc.children(recursive=True):
@@ -91,15 +95,18 @@ def run_script(path: Path) -> tuple[int, float, str, float | None]:
     if psutil is not None:
         t.start()
 
+    pre_mem_free_mb = psutil.virtual_memory().available / (1024 * 1024)
     try:
         proc = subprocess.run([sys.executable, str(path)], check=False, capture_output=True, text=True)  # noqa: S603
     except FileNotFoundError as e:
         duration = time.perf_counter() - start
-        return 127, duration, f"File not found: {e}", peak_mem_mb
+        peak_mem_less_avail_mb = pre_mem_free_mb - min_mem_free_mb if min_mem_free_mb is not None else None
+        return 127, duration, f"File not found: {e}", peak_mem_mb, peak_mem_less_avail_mb
     else:
         duration = time.perf_counter() - start
+        peak_mem_less_avail_mb = pre_mem_free_mb - min_mem_free_mb if min_mem_free_mb is not None else None
         output = (proc.stdout or "") + ("\n" + proc.stderr if proc.stderr else "")
-        return proc.returncode, duration, output, peak_mem_mb
+        return proc.returncode, duration, output, peak_mem_mb, peak_mem_less_avail_mb
     finally:
         stop_flag = True
         if psutil is not None and t.is_alive():
@@ -132,7 +139,7 @@ def main() -> int:
                 "exit_code": 127,
             }
             continue
-        code, dur, out, peak_mem_mb = run_script(path)
+        code, dur, out, peak_mem_mb, peak_mem_less_avail_mb = run_script(path)
         results["runs"][name] = {
             "status": "ok" if code == 0 else "error",
             "duration_sec": round(dur, 3),
@@ -141,6 +148,8 @@ def main() -> int:
         # Add memory info if available
         if peak_mem_mb is not None:
             results["runs"][name]["peak_memory_mb"] = round(peak_mem_mb, 1)  # type: ignore[index]
+        if peak_mem_less_avail_mb is not None:
+            results["runs"][name]["peak_memory_less_available_mb"] = round(peak_mem_less_avail_mb, 1)  # type: ignore[index]
         # Keep a short log snippet in case of failure
         if code != 0:
             results["runs"][name]["log_tail"] = out.splitlines()[-20:]  # type: ignore[index]
