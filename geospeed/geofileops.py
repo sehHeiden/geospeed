@@ -57,7 +57,7 @@ def _do_intersection(gfo_api: object, input1: str, input2: str, output: str, **k
     """Perform spatial intersection with robust version detection."""
     if hasattr(gfo_api, "intersection"):
         print("Running geofileops.intersection() ...")
-        gfo_api.intersection(input1, input2, output, **kwargs)  # type: ignore[attr-defined]
+        gfo_api.intersection(input1, input2, output, force=True, **kwargs)  # type: ignore[attr-defined]
     elif hasattr(gfo_api, "overlay"):
         print("Running geofileops.overlay(operation='intersection') ...")
         gfo_api.overlay(  # type: ignore[attr-defined]
@@ -199,6 +199,8 @@ if __name__ == "__main__":
             print(f"Failed to prepare buildings data: {e}")
             sys.exit(1)
         print("Note: Skipping spatial index creation for buildings - proceeding without index")
+    else:
+        print(f"Buildings data already prepared at {buildings_path}")
 
     parcels_path = alkis_dir / "NutzungFlurstueck.gpkg"
     if not parcels_path.exists():
@@ -209,8 +211,10 @@ if __name__ == "__main__":
             print(f"Failed to prepare parcels data: {e}")
             sys.exit(1)
         print("Note: Skipping spatial index creation for parcels - proceeding without index")
+    else:
+        print(f"Parcels data already prepared at {parcels_path}")
 
-    print(f"geofileops: Prepare data duration: {(time.time() - start):.0f} s.")
+    print(f"geofileops: Prepare data duration: {(time.time() - start):.2f} s.")
 
     start_intersection = time.time()
     buildings_with_parcels_path = alkis_dir / "buildings_with_parcels.gpkg"
@@ -227,6 +231,6 @@ if __name__ == "__main__":
         )
     except AttributeError as e:
         _handle_attribute_error(e, gfo, gfo_api)
-    print(f"geofileops: Load, intersection, save takes: {(time.time() - start_intersection):.0f} s.")
+    print(f"geofileops: Load, intersection, save takes: {(time.time() - start_intersection):.2f} s.")
 
-    print(f"geofileops: Total duration: {(time.time() - start):.0f} s.")
+    print(f"geofileops: Total duration: {(time.time() - start):.2f} s.")
