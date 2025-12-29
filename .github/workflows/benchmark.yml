@@ -69,9 +69,8 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             uv run python -c "import geopandas, pyogrio, duckdb, geofileops; print('✅ OK')"
-            timeout 3600 uv run python scripts/benchmarks.py > output.log
           else
-            timeout 3600 uv run python scripts/benchmarks.py > output.log
+            timeout 3600 uv run python scripts/benchmarks.py
             uv run python scripts/update_readme.py
             git diff --quiet readme.md || {
               git config user.email "action@github.com"
@@ -81,6 +80,3 @@ jobs:
               git push
             }
           fi
-
-      - name: Print benchmark output log
-        run: cat output.log
