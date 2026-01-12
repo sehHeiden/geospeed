@@ -20,7 +20,7 @@ dependencies = [
     "psutil",
     "duckdb~=1.4.2",
     "pyspark==3.5.7",
-    "apache-sedona[spark]==1.7.2",
+    "apache-sedona[spark]==1.8.1",
     "geofileops>=0.10.2",
 ]
 
