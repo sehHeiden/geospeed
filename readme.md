@@ -275,18 +275,18 @@ Maybe one day I can recommend DuckDB instead.
 
 <!-- BENCHMARK_RESULTS_START -->
 
-**Last updated**: 2026-03-22T15:45:29Z  
+**Last updated**: 2026-03-30T13:08:41Z  
 **Python**: 3.13.7  
 **Dataset**: Test subset (significantly smaller than the full Brandenburg dataset)
 
 | Framework | Status | Duration | Peak RAM | Notes |
 |-----------|--------|----------|----------|-------|
-| GeoPandas | ✅ | 8.9s | 749 MB | Baseline performance |
-| Dask-GeoPandas | ✅ | 7.2s | 864 MB | ~20% faster than GeoPandas |
-| DuckDB | ❌ | 2.6s | 304 MB | Exit code: 1 |
-| GeoPandas (county-wise) | ✅ | 7.0s | 612 MB |  |
-| geofileops | ✅ | 9.5s | 1.2 GB |  |
-| Apache Sedona (PySpark) | ✅ | 44.8s | 2.0 GB |  |
+| GeoPandas | ✅ | 9.4s | 752 MB | Baseline performance |
+| Dask-GeoPandas | ✅ | 7.4s | 800 MB | ~22% faster than GeoPandas |
+| DuckDB | ❌ | 2.8s | 309 MB | Exit code: 1 |
+| GeoPandas (county-wise) | ✅ | 7.2s | 611 MB |  |
+| geofileops | ✅ | 7.9s | 1.2 GB |  |
+| Apache Sedona (PySpark) | ✅ | 45.2s | 1.9 GB |  |
 
 <!-- BENCHMARK_RESULTS_END -->
 
