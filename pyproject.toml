@@ -19,7 +19,7 @@ dependencies = [
     "memory-profiler",
     "psutil",
     "duckdb~=1.5.2",
-    "pyspark==3.5.8",
+    "pyspark==3.5.9",
     "apache-sedona[spark]==1.9.0",
     "geofileops>=0.11.1",
 ]
